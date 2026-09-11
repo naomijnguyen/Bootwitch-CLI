@@ -1,0 +1,91 @@
+# Template authoring
+
+Bootwitch composes templates in two layers. Every project receives
+`templates/base`; a selected specialized template is copied over it.
+
+## Rules
+
+- Template names are lowercase directory names under `templates/`.
+- A specialized template may add or deliberately replace base files.
+- Use `{{PROJECT_NAME}}`, `{{CREATED_DATE}}`, and `{{BOOTWITCH_VERSION}}` for
+  supported substitutions.
+- Keep generated paths relative to the project root.
+- Do not include credentials, usernames, cloud locations, `sudo`, background
+  services, or destructive cleanup commands.
+- Generated shell code must remain within the Bash 3.2 feature set.
+- Put runnable shell entry points in `scripts/`, `src/`, or `tests/`; Bootwitch
+  marks shell files in those directories executable.
+
+## Adding a template
+
+1. Create `templates/<name>` containing only additions or overrides to base.
+2. Add the name and description to `bootwitch_list`.
+3. Add integration coverage that generates and runs the template in a temporary
+   directory.
+4. Run `make check` on macOS and the CI matrix before release.
+
+Generated project metadata is written separately to `.bootwitch/project.conf`.
+Consumers must use the allowlisted parser in `lib/bootwitch/config.sh`; never
+source metadata as shell code.
+
+Every template inherits `docs/project/`, a version-controlled memory folder for
+current state, decisions, questions, and dated work-session updates. Specialized
+templates may add relevant starting context, but should preserve the common
+headings in `updates/update-template.md` so people and coding assistants can
+scan every project consistently.
+
+## Shell script format
+
+Shell projects include `.bootwitch/templates/script.sh.tpl` and the safe
+`scripts/new-script.sh` generator. Create new scripts through the generator so
+they share the same metadata header, strict mode, path resolution, `main` entry
+point, logging helper, and instructional annotation format.
+
+Document functions with the headings that help a reader predict behavior:
+`Function`, `Purpose`, `Arguments`, `Output`, `Returns`, `How it works`, and
+`Safety`. Include only useful headings; small helpers do not need empty sections.
+
+## Script header maintenance
+
+All active Bash scripts, sourced modules, wrappers, tests, and the future-script
+`.tpl` start with a marked component header immediately below the shebang.
+Fill Purpose, Arguments, Output, Returns, Dependencies, Reads, Writes, Safety,
+and Example from actual behavior. For modules, distinguish loading the file from
+calling its functions. Keep fields on one line for the README renderer.
+
+Dates (containing Created and Last Updated) and Version are required. Use YYYY-MM-DD dates; mark a
+legacy first-tracked or first-documented date explicitly when original creation
+is unknown. Preserve that source history when a bundled script is copied into a
+new project. New custom scripts use SCRIPT_CREATED_DATE and SCRIPT_UPDATED_DATE
+placeholders filled by new-script.sh, independently of project creation.
+
+Per-script versions start at 0.1.0 with this convention. Preserve Created on edits,
+update Last Updated, and bump the patch for fixes/documentation, minor for compatible
+features, or major for breaking changes. The toolkit VERSION and project.header
+remain project release metadata. README builds only read script metadata.
+
+New-script creation automatically invokes `wrappers/build_readme.command` after
+publishing the executable. The direct generator and its clickable wrapper share
+this behavior. Status 3 means creation succeeded but documentation failed: keep
+the script, fix the reported problem, and run the printed README retry command.
+Existing-destination refusal happens before any README rebuild. Editing existing
+headers still requires a manual rebuild; running a script does not refresh docs.
+
+### Reliable README builds
+
+The current header format is `# Dates: Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD`,
+followed by `# Version: ...`. Legacy separate Created and Last Updated fields still
+render. If both formats exist, Dates takes precedence.
+
+The builder validates marked blocks and requires a nonempty Name, matching block
+markers, and unique field names within each block. Unmarked comments are ignored.
+Required project facts are PROJECT_PURPOSE, PROJECT_TYPE, PROJECT_VERSION,
+PROJECT_STATUS, and PRIMARY_WRAPPER; missing or blank values stop the build.
+
+Files are discovered in stable bytewise path order within each component folder.
+The completed README is staged on the same filesystem and atomically replaces the
+original only after validation and rendering succeed. Its permission mode is
+preserved, and staging files are cleaned up on ordinary failures and catchable
+signals. A failed build before publication leaves the previous README intact.
+This does not lock out simultaneous human edits; avoid editing the README while
+rebuilding it. Existing symbolic-link READMEs are rejected explicitly.

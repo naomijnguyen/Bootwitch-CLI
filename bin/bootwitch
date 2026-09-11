@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# @bootwitch:component
+# Name: bin/bootwitch
+# Type: script
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
+# Version: 0.1.1
+# Purpose: Dispatch Bootwitch project creation, template listing, help, and environment checks.
+# Arguments: COMMAND [OPTIONS]; no command displays help.
+# Output: Command results on stdout; progress and errors on stderr.
+# Returns: 0 on success; nonzero on failure.
+# Dependencies: Bash 3.2+, dirname, lib/bootwitch/core.sh; command-specific tools documented there.
+# Reads: VERSION, lib/bootwitch/core.sh, and bundled templates for creation.
+# Writes: init/summon create a project and optional local Git repository; inspection commands write nothing.
+# Safety: Resolves the installation from this entry point and dispatches through an explicit command allowlist.
+# Example: bash bin/bootwitch init Example --template shell --no-git
+# @bootwitch:end
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# Safety: resolve the installation from this executable instead of trusting the
+# caller's working directory or a user-specific absolute path.
+BOOTWITCH_BIN_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+BOOTWITCH_HOME=$(CDPATH='' cd -- "$BOOTWITCH_BIN_DIR/.." && pwd)
+
+# shellcheck source=../lib/bootwitch/core.sh
+# Safety: the sourced file is anchored inside the resolved Bootwitch install;
+# no path from project metadata or command-line input is executed here.
+. "$BOOTWITCH_HOME/lib/bootwitch/core.sh"
+
+# Dispatch only through the explicit command allowlist in bootwitch_main.
+bootwitch_main "$@"

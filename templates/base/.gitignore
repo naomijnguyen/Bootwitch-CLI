@@ -1,0 +1,15 @@
+.DS_Store
+*.log
+.cache/
+.tmp/
+coverage/
+dist/
+build/
+logs/*
+cache/*
+temp/*
+output/*
+!logs/.gitkeep
+!cache/.gitkeep
+!temp/.gitkeep
+!output/.gitkeep

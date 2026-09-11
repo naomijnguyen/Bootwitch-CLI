@@ -1,0 +1,7 @@
+PROJECT_NAME={{PROJECT_NAME}}
+PROJECT_SLUG={{PROJECT_NAME}}
+PROJECT_PURPOSE=Demonstrate a portable, annotated Bootwitch shell project.
+PROJECT_TYPE=shell-starter
+PROJECT_VERSION=0.1.0
+PROJECT_STATUS=learning
+PRIMARY_WRAPPER=wrappers/run.command

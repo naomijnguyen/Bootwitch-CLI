@@ -1,0 +1,10 @@
+.DS_Store
+*.log
+node_modules/
+.npm-cache/
+.cache/
+.tmp/
+coverage/
+
+.tools/
+__pycache__/
