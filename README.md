@@ -403,3 +403,20 @@ their own effects.
 Tool setup uses the [official ShellCheck release](https://github.com/koalaman/shellcheck/releases/tag/v0.11.0). The previous npm wrapper was removed because its dependency tree included an unpatched archive-extraction advisory. No npm dependencies remain in this toolkit.
 
 Header wording is kept concise while all 13 required fields remain readable by the README builder. See [header design](docs/script-headers.md) for the current example and the tradeoffs in reducing it further.
+
+## License
+
+Bootwitch's source, documentation, and bundled templates are licensed under
+[MIT](LICENSE), copyright (c) 2026
+[Jennifer Naomi Nguyen](https://github.com/naomijnguyen).
+
+New base and shell projects automatically include the same notice in
+`LICENSES/Bootwitch-MIT.txt`. Their README explains how to retain it for copied
+Bootwitch code and generated scripts while choosing a license for your own
+additions. This notice lives outside the generated README section, so rebuilding
+the reference preserves it without expanding component headers.
+
+Previously generated projects are not updated automatically. When maintaining
+one, copy `templates/base/LICENSES/Bootwitch-MIT.txt` into its `LICENSES/` folder
+and add the licensing explanation from the current template README. Preserve
+any existing project license and third-party notices.

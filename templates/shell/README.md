@@ -156,3 +156,17 @@ write may leave a partial script: inspect the reported destination before retryi
 The bundled shell tests run in a temporary copy, choose unused fixture names, and
 refuse copied trees with symlinks. Your original project is left unchanged by
 those bundled mutation tests; custom tests must manage their own effects.
+
+## License
+
+Bootwitch author: [Jennifer Naomi Nguyen](https://github.com/naomijnguyen).
+
+The starter code and documentation supplied by Bootwitch are covered by the
+[Bootwitch MIT license](LICENSES/Bootwitch-MIT.txt), including the bundled script
+template. Preserve that notice when redistributing copies or substantial portions
+of Bootwitch code, including scripts made from the template. If distributing a
+script separately, include the notice with it.
+
+Choose a license for your own additions separately; generating this project does
+not assign your code to Bootwitch's author or choose your project's overall
+license. Keep Bootwitch's notice alongside any license you add.

@@ -122,3 +122,10 @@ preserved, and staging files are cleaned up on ordinary failures and catchable
 signals. A failed build before publication leaves the previous README intact.
 This does not lock out simultaneous human edits; avoid editing the README while
 rebuilding it. Existing symbolic-link READMEs are rejected explicitly.
+
+## License notices
+
+The base layer includes `LICENSES/Bootwitch-MIT.txt`, an exact copy of the toolkit
+MIT license. Preserve it in overlays that reuse Bootwitch content. If an overlay
+replaces README.md, retain the licensing explanation outside generated markers.
+Keep notices for any additional third-party material alongside their code.

@@ -3,12 +3,12 @@
 # Name: tests/test_cli.sh
 # Type: test
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.2
+# Version: 0.1.3
 # Purpose: Verify CLI inspection, guided creation, dry-run, generated projects, and destination refusal.
 # Arguments: None.
 # Output: CLI integration success message; failures on stderr.
 # Returns: 0 on success; nonzero on failure.
-# Dependencies: Bash 3.2+, dirname, mktemp, rm, grep, Git, and CLI/generated-test dependencies.
+# Dependencies: Bash 3.2+, dirname, mktemp, rm, grep, cmp, Git, and CLI/generated-test dependencies.
 # Reads: bin/bootwitch, tests/helpers.sh, bundled templates, and generated fixtures.
 # Writes: Temporary projects including local Git repositories; removes its allocated test directory on exit.
 # Safety: Uses a unique temporary root, including paths with spaces; no remote Git operations.
@@ -79,5 +79,18 @@ assert_exists "$shell_project/wrappers/run.command"
 if /bin/bash "$CLI" init shell-demo --template shell --root "$space_root" >/dev/null 2>&1; then
   test_fail 'existing destination was overwritten'
 fi
+
+# Both layers must carry the exact notice; shell README rebuilds preserve it.
+cmp "$PROJECT_ROOT/LICENSE" "$PROJECT_ROOT/templates/base/LICENSES/Bootwitch-MIT.txt"
+for licensed_project in "$base_project" "$shell_project"; do
+  cmp "$PROJECT_ROOT/LICENSE" "$licensed_project/LICENSES/Bootwitch-MIT.txt"
+  assert_contains "$(cat "$licensed_project/README.md")" '[Bootwitch MIT license](LICENSES/Bootwitch-MIT.txt)'
+done
+/bin/bash "$shell_project/wrappers/build_readme.command" >/dev/null
+cp "$shell_project/README.md" "$TEST_TMP/licensed-readme.md"
+/bin/bash "$shell_project/wrappers/build_readme.command" >/dev/null
+cmp "$TEST_TMP/licensed-readme.md" "$shell_project/README.md"
+assert_contains "$(cat "$shell_project/README.md")" '[Bootwitch MIT license](LICENSES/Bootwitch-MIT.txt)'
+cmp "$PROJECT_ROOT/LICENSE" "$shell_project/LICENSES/Bootwitch-MIT.txt"
 
 printf 'CLI integration tests passed.\n'
