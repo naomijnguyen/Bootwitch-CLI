@@ -4,7 +4,7 @@
 # Display Name: Make Script Executable
 # Type: wrapper
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Version: 0.1.2
 # Purpose: Provide a friendly entry point for changing one script's permission.
 # Module: modules/permissions.sh
 # Calls: project_make_executable
@@ -18,8 +18,9 @@
 # Example: bash wrappers/make_executable.command src/main.sh
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 PROJECT_ROOT=$(CDPATH='' cd -- "$WRAPPER_DIR/.." && pwd)

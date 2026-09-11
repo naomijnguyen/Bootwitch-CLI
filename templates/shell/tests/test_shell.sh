@@ -3,20 +3,21 @@
 # Name: tests/test_shell.sh
 # Type: test
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.2
-# Purpose: Exercise the shell demo, wrappers, script generator, root discovery, and permission boundaries.
+# Version: 0.2.0
+# Purpose: Exercise universal headers, the shell demo, script generator, root discovery, and permission boundaries.
 # Arguments: None.
 # Output: Mostly silent on success; delegated errors on failure.
 # Returns: 0 on success; nonzero on failure.
-# Dependencies: Bash 3.2+, dirname, grep, mkdir, mv, mktemp, cp, rm, find, and project wrapper/generator dependencies.
+# Dependencies: Bash 3.2+, dirname, grep, sed, mkdir, mv, mktemp, cp, rm, find, and project wrapper/generator dependencies.
 # Reads: Project scripts, wrappers, modules, README, and metadata.
 # Writes: Disposable copied project only, removed on exit.
 # Safety: All mutations occur in an owned temporary copy; the original project is read-only.
 # Example: bash tests/test_shell.sh
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 PROJECT_ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 TEST_SANDBOX=$(mktemp -d "${TMPDIR:-/tmp}/bootwitch-shell-test.XXXXXX")
@@ -37,6 +38,21 @@ while test -e "$PROJECT_ROOT/scripts/$fixture_name.sh" || test -L "$PROJECT_ROOT
   fixture_name=${fixture_name}-test
 done
 
+# Function: check_universal_header
+# Purpose: Confirm one bundled shell file starts with the complete shared header.
+# Arguments: $1 is a generated-project .sh or .command path.
+# Output: Assertion failures only.
+# Returns: 0 when every required field is populated.
+check_universal_header() {
+  local shell_file=$1
+  local metadata_field
+
+  test "$(sed -n '1p' "$shell_file")" = '#!/usr/bin/env bash'
+  test "$(sed -n '2p' "$shell_file")" = '# @bootwitch:component'
+  for metadata_field in Name Type Dates Version Purpose Arguments Output Returns Dependencies Reads Writes Safety Example; do
+    grep -q "^# $metadata_field: ." "$shell_file"
+  done
+}
 
 output=$(CDPATH='' cd -- / && /bin/bash "$PROJECT_ROOT/wrappers/run.command" 2>&1)
 printf '%s\n' "$output" | grep -q 'Demonstration report was verified.'
@@ -49,11 +65,13 @@ hello_output=$(/bin/bash "$PROJECT_ROOT/wrappers/hello.command")
 printf '%s\n' "$hello_output" | grep -q 'Hello from Bootwitch.'
 printf '%s\n' "$hello_output" | grep -q 'Welcome to the coven.'
 
-for shell_file in "$PROJECT_ROOT"/scripts/*.sh "$PROJECT_ROOT"/src/*.sh "$PROJECT_ROOT"/modules/*.sh; do
+for shell_file in "$PROJECT_ROOT"/scripts/*.sh "$PROJECT_ROOT"/src/*.sh "$PROJECT_ROOT"/modules/*.sh "$PROJECT_ROOT"/tests/*.sh; do
   /bin/bash -n "$shell_file"
+  check_universal_header "$shell_file"
 done
 for wrapper_file in "$PROJECT_ROOT"/wrappers/*.command; do
   /bin/bash -n "$wrapper_file"
+  check_universal_header "$wrapper_file"
 done
 
 # Initialization fills the marked README section from project.header and the
@@ -72,6 +90,14 @@ printf '%s\n' "$generator_output" | grep -q "Created scripts/${fixture_name}.sh"
 test -x "$PROJECT_ROOT/scripts/${fixture_name}.sh"
 grep -q '# Function: main' "$PROJECT_ROOT/scripts/${fixture_name}.sh"
 grep -q '^# @bootwitch:component$' "$PROJECT_ROOT/scripts/${fixture_name}.sh"
+check_universal_header "$PROJECT_ROOT/scripts/${fixture_name}.sh"
+grep -Fxq 'set -e' "$PROJECT_ROOT/scripts/${fixture_name}.sh"
+grep -Fxq 'set -u' "$PROJECT_ROOT/scripts/${fixture_name}.sh"
+grep -Fxq 'set -o pipefail' "$PROJECT_ROOT/scripts/${fixture_name}.sh"
+if grep -q '^IFS=' "$PROJECT_ROOT/scripts/${fixture_name}.sh"; then
+  printf 'Generated script overrides IFS globally.\n' >&2
+  exit 1
+fi
 if grep -q '{{SCRIPT_NAME}}' "$PROJECT_ROOT/scripts/${fixture_name}.sh" || \
   grep -q '{{SCRIPT_CREATED''_DATE}}' "$PROJECT_ROOT/scripts/${fixture_name}.sh"; then
   printf 'Generated script still contains unresolved script tokens.\n' >&2

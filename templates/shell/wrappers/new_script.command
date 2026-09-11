@@ -4,7 +4,7 @@
 # Display Name: Create Annotated Script
 # Type: wrapper
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.2.1
+# Version: 0.2.2
 # Purpose: Create an annotated project script and refresh its README reference.
 # Calls: scripts/new-script.sh
 # Arguments: NAME [scripts|src|tests]; forwarded to the generator.
@@ -17,8 +17,9 @@
 # Example: bash wrappers/new_script.command sample-task scripts
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 PROJECT_ROOT=$(CDPATH='' cd -- "$WRAPPER_DIR/.." && pwd)

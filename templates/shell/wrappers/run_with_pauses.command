@@ -4,7 +4,7 @@
 # Display Name: Run Project With Pauses
 # Type: wrapper
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Version: 0.1.2
 # Purpose: Run the same project workflow and ask after every checkpoint.
 # Module: modules/checkpoint.sh
 # Calls: wrappers/run.command
@@ -18,8 +18,9 @@
 # Example: bash wrappers/run_with_pauses.command
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 exec /bin/bash "$WRAPPER_DIR/run.command" --pause "$@"

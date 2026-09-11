@@ -4,7 +4,7 @@
 # Display Name: Initialize Project
 # Type: wrapper
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Version: 0.1.2
 # Purpose: Prepare folders, permissions, and generated README documentation.
 # Module: modules/paths.sh, modules/permissions.sh, modules/documentation.sh
 # Arguments: Optional --pause enables interactive checkpoints.
@@ -17,8 +17,9 @@
 # Example: bash wrappers/initialize_project.command
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 PROJECT_ROOT=$(CDPATH='' cd -- "$WRAPPER_DIR/.." && pwd)

@@ -3,7 +3,7 @@
 # Name: main
 # Type: script
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Version: 0.1.2
 # Purpose: Demonstrate project directories, logging, a report, and success checkpoints.
 # Wrapper: wrappers/run.command
 # Arguments: Optional --pause enables interactive checkpoint prompts.
@@ -16,8 +16,9 @@
 # Example: bash src/main.sh
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 

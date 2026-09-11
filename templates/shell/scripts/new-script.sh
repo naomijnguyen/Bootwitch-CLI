@@ -3,7 +3,7 @@
 # Name: new-script
 # Type: script
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.2.2
+# Version: 0.2.3
 # Purpose: Create one annotated project script and refresh its README reference.
 # Wrapper: wrappers/new_script.command
 # Arguments: NAME [scripts|src|tests]; default destination is scripts.
@@ -16,8 +16,9 @@
 # Example: bash scripts/new-script.sh sample-task scripts
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 PROJECT_ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 SCRIPT_TEMPLATE=$PROJECT_ROOT/.bootwitch/templates/script.sh.tpl

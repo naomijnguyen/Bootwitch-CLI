@@ -3,7 +3,7 @@
 # Name: tests/test_structure.sh
 # Type: test
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Version: 0.1.2
 # Purpose: Verify required project paths and metadata schema.
 # Arguments: None.
 # Output: Silent on success; missing-path errors on stderr.
@@ -15,8 +15,9 @@
 # Example: bash tests/test_structure.sh
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 PROJECT_ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 

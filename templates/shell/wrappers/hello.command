@@ -4,7 +4,7 @@
 # Display Name: Hello Bootwitch
 # Type: wrapper
 # Dates: Created: 2026-09-09 (first documented; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Version: 0.1.2
 # Purpose: Provide a friendly first-click welcome for a generated project.
 # Arguments: None.
 # Output: Bootwitch welcome text on stdout.
@@ -16,8 +16,9 @@
 # Example: bash wrappers/hello.command
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 printf 'Hello from Bootwitch.\n'
 printf 'Welcome to the coven.\n'

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Prepare sharing: align explicit Bash settings, enforce universal headers, shorten starter-header prose, update and pin CI actions, and document the reproducible demo and header tradeoffs.
 - Require pinned, checksum-verified local ShellCheck in make check and CI; remove the npm wrapper dependency tree, fix lint findings, and test safe tool archive handling.
 - Replace final project copying with native atomic exclusive rename; require Python 3 for toolkit creation, retain completed staging and print a retry command on publication failure. Add collision, recovery, dependency, and interruption regressions.
 - Fix reviewed filesystem bugs: isolate generated mutation tests, reject unsafe template/script paths, propagate executable setup failures, and reserve project/script destinations against late collisions. Add RF-001–RF-005 regressions.
@@ -18,6 +19,10 @@
 
 ## v0.2.0-dev - 2026-09-09
 
+- Standardized one README-readable component header across scripts, modules,
+  wrappers, tests, and the new-script template; added complete-header coverage.
+- Expanded the three Bash safety settings for teaching and removed global
+  `IFS` overrides in favor of quoting, arrays, and scoped reads.
 - Adopted pre-public semantic versioning for the current Bootwitch line.
 - Added project-local ShellCheck through npm and wired it into `make check`.
 - Added public README and architecture documentation updates.

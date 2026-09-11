@@ -49,9 +49,42 @@ Document functions with the headings that help a reader predict behavior:
 
 All active Bash scripts, sourced modules, wrappers, tests, and the future-script
 `.tpl` start with a marked component header immediately below the shebang.
-Fill Purpose, Arguments, Output, Returns, Dependencies, Reads, Writes, Safety,
-and Example from actual behavior. For modules, distinguish loading the file from
-calling its functions. Keep fields on one line for the README renderer.
+The universal required fields are Name, Type, Dates, Version, Purpose, Arguments,
+Output, Returns, Dependencies, Reads, Writes, Safety, and Example. Relationship
+fields such as Display Name, Wrapper, Module, and Calls remain optional. For
+modules, distinguish loading the file from calling its functions. Keep every
+field on one line for the README renderer. Prefer short, concrete descriptions;
+retain effect and failure details. See [header design](script-headers.md).
+
+```bash
+#!/usr/bin/env bash
+# @bootwitch:component
+# Name: scripts/example.sh
+# Type: script
+# Dates: Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD
+# Version: 0.1.0
+# Purpose: Describe the script's one job.
+# Arguments: Describe accepted arguments, or None.
+# Output: Describe stdout, stderr, and created files.
+# Returns: Describe success and intentional failure statuses.
+# Dependencies: List runtime commands and project modules.
+# Reads: List files, configuration, or external state read.
+# Writes: List files or state changed, or None.
+# Safety: State the boundaries that prevent unintended changes.
+# Example: bash scripts/example.sh
+# @bootwitch:end
+```
+
+Runnable scripts put the three Bash safety settings immediately after the header.
+They are written separately so learners can recognize each guardrail. Do not set
+`IFS` globally; quoted expansions, arrays, and command-scoped `IFS=` reads
+preserve argument boundaries without changing splitting behavior everywhere.
+
+```bash
+set -e
+set -u
+set -o pipefail
+```
 
 Dates (containing Created and Last Updated) and Version are required. Use YYYY-MM-DD dates; mark a
 legacy first-tracked or first-documented date explicitly when original creation

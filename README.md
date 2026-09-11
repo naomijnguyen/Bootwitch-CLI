@@ -25,6 +25,8 @@ installation, background service setup, remote publishing, or automatic commits.
 
 ## Quick start
 
+For a short, reproducible walkthrough, see [the demo](docs/demo.md).
+
 Run Bootwitch commands from the Bootwitch code folder, such as this repository's
 `CLI-Scaffold` directory:
 
@@ -138,6 +140,12 @@ Inside a generated shell project, create consistently formatted scripts with:
 
 Generated scripts include a metadata header, strict Bash settings, project-root
 discovery, the standard logging helper, and a `main` function.
+
+The same universal header shape is used by bundled scripts, sourced modules,
+wrappers, and tests. Required fields describe identity, dates/version, purpose,
+inputs and outputs, dependencies, reads/writes, safety boundaries, and an example.
+Runnable files show `set -e`, `set -u`, and `set -o pipefail` separately
+and do not replace `IFS` globally.
 
 ## Generated Documentation
 
@@ -322,7 +330,7 @@ The strongest demo is a small generated project that shows:
 Bootwitch deliberately excludes mountctl, launchd agents, cloud
 synchronization, general application templates, and portfolio generation until
 the core scaffolder is stable. The current repository passes syntax checks,
-integration tests, and generated-project tests through `make check`; optional
+integration tests, and generated-project tests through `make check`; required
 linting and formatting checks run when their developer tools are installed.
 
 ### Reliable README builds
@@ -377,8 +385,9 @@ directories and filesystems that honor the exclusive rename operation.
 
 The regression suite covers native rename, destination collisions, competing
 creators, publication failure and retry, missing capability, and interruption.
-CI provisions Python 3 for both configured OS runners; a configured job is not
-itself evidence that Linux has been tested.
+CI provisions Python 3 and verified ShellCheck on both macOS and Ubuntu runners.
+See the repository's [CI runs](https://github.com/naomijnguyen/bootwitch/actions/workflows/ci.yml)
+for the result associated with each commit.
 
 New scripts use a no-clobber write to refuse regular files that arrive during
 rendering. A write or permission failure may leave a file requiring inspection;
@@ -392,3 +401,5 @@ from following links outside the copy. Custom test suites remain responsible for
 their own effects.
 
 Tool setup uses the [official ShellCheck release](https://github.com/koalaman/shellcheck/releases/tag/v0.11.0). The previous npm wrapper was removed because its dependency tree included an unpatched archive-extraction advisory. No npm dependencies remain in this toolkit.
+
+Header wording is kept concise while all 13 required fields remain readable by the README builder. See [header design](docs/script-headers.md) for the current example and the tradeoffs in reducing it further.

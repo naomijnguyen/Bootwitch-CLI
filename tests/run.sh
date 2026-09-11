@@ -3,7 +3,7 @@
 # Name: tests/run.sh
 # Type: test
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.3
+# Version: 0.1.4
 # Purpose: Run all toolkit test_*.sh suites and report success.
 # Arguments: None.
 # Output: Test results and final success message on stdout; failures on stderr.
@@ -15,8 +15,9 @@
 # Example: bash tests/run.sh
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 TEST_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 

@@ -3,8 +3,8 @@
 # Name: tests/test_documentation.sh
 # Type: test
 # Dates: Created: 2026-09-11 | Last Updated: 2026-09-11
-# Version: 0.2.3
-# Purpose: Verify header rendering, recursive discovery, date/version metadata, automatic refresh, and README preservation.
+# Version: 0.3.0
+# Purpose: Verify universal headers, rendering, recursive discovery, automatic refresh, and README preservation.
 # Arguments: None.
 # Output: README integration success message; failures on stderr.
 # Returns: 0 on success; nonzero on failure.
@@ -15,7 +15,9 @@
 # Example: bash tests/test_documentation.sh
 # @bootwitch:end
 
-set -euo pipefail
+set -e
+set -u
+set -o pipefail
 
 TEST_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 PROJECT_ROOT=$(CDPATH='' cd -- "$TEST_DIR/.." && pwd)
@@ -31,13 +33,16 @@ finish='<!-- BOOTWITCH:DOCS:END -->'
 printf 'Human introduction\n%s\nOld generated text\n%s\nHuman ending\n' "$start" "$finish" > "$readme"
 grep -q '{{SCRIPT_CREATED_DATE}}' "$project/.bootwitch/templates/script.sh.tpl"
 grep -q '{{SCRIPT_UPDATED_DATE}}' "$project/.bootwitch/templates/script.sh.tpl"
-# Every bundled generated shell file contributes its populated header.
+# Every bundled generated shell file begins with the universal header and
+# contributes a complete, populated component entry.
 /bin/bash "$builder" >/dev/null
 while IFS= read -r -d '' bundled_script; do
+  test "$(sed -n '1p' "$bundled_script")" = '#!/usr/bin/env bash'
+  test "$(sed -n '2p' "$bundled_script")" = '# @bootwitch:component'
   component_name=$(awk '/^# @bootwitch:component$/ { active=1; next } active && /^# Name: / { sub(/^# Name: /, ""); print; exit }' "$bundled_script")
   test -n "$component_name"
   grep -Fq "### \`$component_name\`" "$readme"
-  for metadata_field in Dates Version; do
+  for metadata_field in Name Type Dates Version Purpose Arguments Output Returns Dependencies Reads Writes Safety Example; do
     grep -q "^# $metadata_field: ." "$bundled_script"
   done
 done < <(find "$project/wrappers" "$project/modules" "$project/scripts" "$project/src" "$project/tests" -type f \( -name '*.sh' -o -name '*.command' \) -print0)
@@ -52,6 +57,10 @@ grep -q '^### `sample-test.sh`$' "$readme"
 for generated_script in "$project/scripts/sample.sh" "$project/tests/sample-test.sh"; do
   grep -Fxq "# Dates: Created: $(date +%Y-%m-%d) | Last Updated: $(date +%Y-%m-%d)" "$generated_script"
   grep -Fxq '# Version: 0.1.0' "$generated_script"
+  grep -Fxq 'set -e' "$generated_script"
+  grep -Fxq 'set -u' "$generated_script"
+  grep -Fxq 'set -o pipefail' "$generated_script"
+  if grep -q '^IFS=' "$generated_script"; then exit 1; fi
   if grep -q '{{SCRIPT_' "$generated_script"; then exit 1; fi
 done
 # A rebuild must display authored revisions without refreshing their dates.

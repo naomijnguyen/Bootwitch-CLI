@@ -3,7 +3,7 @@
 # Name: tests/test_filesystem.sh
 # Type: test
 # Dates: Created: 2026-09-11 | Last Updated: 2026-09-11
-# Version: 0.1.2
+# Version: 0.1.3
 # Purpose: Regress the five reviewed filesystem failures and publication collisions.
 # Arguments: None.
 # Output: Success message; assertion failures on stderr.
@@ -14,7 +14,9 @@
 # Safety: All fixtures and cleanup stay inside the allocated temporary directory.
 # Example: bash tests/test_filesystem.sh
 # @bootwitch:end
-set -euo pipefail
+set -e
+set -u
+set -o pipefail
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 TMP=$(mktemp -d "${TMPDIR:-/tmp}/bootwitch-filesystem.XXXXXX")
 trap 'rm -rf "$TMP"' EXIT

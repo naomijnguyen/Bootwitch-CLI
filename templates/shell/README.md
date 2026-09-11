@@ -96,9 +96,11 @@ The builder reads `project.header` and marked `@bootwitch:component` /
 `scripts/`, `src/`, and `tests/`. It reads scripts as text without executing them.
 New scripts created by `scripts/new-script.sh` include a component header.
 
-Each block needs `# Name: ...` and a closing `# @bootwitch:end` marker.
-Keep each field on one line. Supported fields are Name, Type, Display Name,
-Wrapper, Module, Calls, Dates, Created, Last Updated, Version, Purpose, Arguments, Output, Returns,
+Each component header needs Name, Type, Dates, Version, Purpose, Arguments,
+Output, Returns, Dependencies, Reads, Writes, Safety, Example, and a closing
+`# @bootwitch:end` marker. Keep each field on one line. Supported optional fields
+are Display Name, Wrapper, Module, Calls, Created, Last Updated, and How it works.
+The renderer supports the complete field set: Name, Type, Dates, Version, Purpose, Arguments, Output, Returns,
 Dependencies, Reads, Writes, How it works, Safety, and Example.
 Update the starter's Purpose and behavior fields when implementing a script.
 Every script header includes a combined Dates line and a separate Version line. Dates use
@@ -112,6 +114,10 @@ not reconstruct earlier script versions. New scripts also start at 0.1.0.
 On edits, preserve Created, set Last Updated, and bump Version: patch for fixes or
 documentation changes, minor for compatible features, major for breaking changes.
 README rebuilding displays these values; it does not change dates or versions.
+
+Runnable scripts place `set -e`, `set -u`, and `set -o pipefail` on
+separate lines after the header so each safety setting is visible. Bootwitch
+does not set `IFS` globally; it uses quoting, arrays, and scoped reads instead.
 
 The README must have exactly one start marker followed by exactly one end marker.
 Invalid marker pairs are rejected before the README is changed. Human-authored

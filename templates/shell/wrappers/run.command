@@ -4,7 +4,7 @@
 # Display Name: Run Project
 # Type: wrapper
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Version: 0.1.2
 # Purpose: Start the project through one friendly, stable entry point.
 # Module: modules/checkpoint.sh
 # Calls: src/main.sh
@@ -18,8 +18,9 @@
 # Example: bash wrappers/run.command
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 PROJECT_ROOT=$(CDPATH='' cd -- "$WRAPPER_DIR/.." && pwd)

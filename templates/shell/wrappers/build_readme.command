@@ -4,7 +4,7 @@
 # Display Name: Build README
 # Type: wrapper
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Version: 0.1.2
 # Purpose: Refresh README's generated section from headers and annotations.
 # Module: modules/documentation.sh
 # Calls: project_build_readme
@@ -18,8 +18,9 @@
 # Example: bash wrappers/build_readme.command
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 PROJECT_ROOT=$(CDPATH='' cd -- "$WRAPPER_DIR/.." && pwd)

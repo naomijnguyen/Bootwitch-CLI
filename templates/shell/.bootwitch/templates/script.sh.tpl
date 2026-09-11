@@ -4,21 +4,24 @@
 # Type: script
 # Dates: Created: {{SCRIPT_CREATED_DATE}} | Last Updated: {{SCRIPT_UPDATED_DATE}}
 # Version: 0.1.0
-# Purpose: Prepare project runtime directories and log the start of a custom workflow.
+# Purpose: Prepare runtime folders and log workflow start.
 # Arguments: None.
-# Output: Progress messages to stderr.
-# Returns: 0 on success; nonzero on failure.
-# Dependencies: Bash 3.2+, dirname, modules/paths.sh, modules/log.sh
-# Reads: Project-root marker .bootwitch/project.conf.
-# Writes: Standard runtime directories and logs/project.log.
-# Safety: Derives runtime paths from the discovered project root.
+# Output: Timestamped stderr messages.
+# Returns: 0 success; nonzero failure.
+# Dependencies: Bash 3.2+, dirname, mkdir, date; modules/paths.sh, modules/log.sh.
+# Reads: .bootwitch/project.conf (root marker).
+# Writes: logs/, cache/, temp/, output/; logs/project.log.
+# Safety: Uses the discovered root; stops if absent.
 # Example: bash {{SCRIPT_AREA}}/{{SCRIPT_NAME}}.sh
 # @bootwitch:end
 
-# Stop on an unhandled error (-e), undefined variable (-u), or failed pipeline
-# stage (pipefail). A newline/tab IFS avoids accidental splitting on spaces.
-set -euo pipefail
-IFS=$'\n\t'
+# Bash safety settings are written separately so each guardrail stays visible:
+# -e stops after an unhandled command failure.
+# -u rejects unset variables.
+# pipefail reports a failure from any command in a pipeline.
+set -e
+set -u
+set -o pipefail
 
 # Resolve from this file rather than the caller's current working directory.
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)

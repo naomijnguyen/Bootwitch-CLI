@@ -3,7 +3,7 @@
 # Name: scripts/run.sh
 # Type: wrapper
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Version: 0.1.2
 # Purpose: Forward to the project run wrapper through a stable script entry point.
 # Arguments: Optional --pause; forwarded to wrappers/run.command.
 # Output: Workflow checkpoints/errors on stderr.
@@ -15,8 +15,9 @@
 # Example: bash scripts/run.sh
 # @bootwitch:end
 
-set -euo pipefail
-IFS=$'\n\t'
+set -e
+set -u
+set -o pipefail
 
 PROJECT_ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 
