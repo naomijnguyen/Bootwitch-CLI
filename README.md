@@ -25,6 +25,25 @@ installation, background service setup, remote publishing, or automatic commits.
 
 ## Quick start
 
+## Install
+
+### Homebrew
+
+The easiest installation path for macOS (and Linuxbrew) is Homebrew:
+
+```sh
+brew install --formula https://raw.githubusercontent.com/naomijnguyen/bootwitch/main/Formula/bootwitch.rb
+```
+
+To confirm installation:
+
+```sh
+bootwitch help
+bootwitch list
+```
+
+Bootwitch requires Bash and Python 3 at runtime. Git is required for default project initialization (`bootwitch init`/`summon`).
+
 For a short, reproducible walkthrough, see [the demo](docs/demo.md).
 
 Run Bootwitch commands from the Bootwitch code folder, such as this repository's

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Added Homebrew installation path via hosted formula (`Formula/bootwitch.rb`) for easier end-user install from GitHub, with Linuxbrew compatibility notes.
 
 ## v0.2.0 - 2026-09-12
 
