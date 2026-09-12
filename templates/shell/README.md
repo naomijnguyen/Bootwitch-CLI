@@ -21,6 +21,11 @@ cd /
 /path/to/{{PROJECT_NAME}}/wrappers/run.command
 ```
 
+The documentation wrappers resolve the project adaptively. `build_readme.command` and
+`initialize_project.command` first locate the nearest Bootwitch project root, then detect
+the source language, then load the matching documentation provider. For now, shell providers
+power the project docs, and Python sources are parsed as static annotations only.
+
 When run by absolute path or double-clicked in Finder, the workflow still writes
 to this project's own `output/` and `logs/` folders.
 
@@ -74,6 +79,7 @@ recreate the script. Existing generated projects need deliberate migration to
 receive newer template helpers.
 
 See [the annotation guide](docs/component-annotations.md) for the template fields and refresh rules.
+See [adaptive mount behavior](docs/adaptive-mounts.md) for root discovery and language-aware provider selection.
 
 ## Tests
 

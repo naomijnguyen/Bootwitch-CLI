@@ -66,3 +66,17 @@ that partial update. Rerun the builder to refresh both. Avoid concurrent edits t
 source and documentation during a build. Existing generated projects receive
 these helpers only through deliberate migration; creating a new project does not
 change older projects.
+
+## Adaptive mounts and parser loading
+
+Documentation entry points use a three-step contract:
+
+1. Mount discovery finds the nearest `.bootwitch/project.conf` from the current
+   location.
+2. Language detection classifies the project from source structure and file markers.
+3. The matching documentation provider is selected only after language is known.
+
+This order keeps wrapper behavior portable and avoids loading parsers before
+finding the project. The shell template currently selects the shell documentation
+module by default while still scanning Python files as text. Future language
+providers can be added without changing wrapper command surfaces.
