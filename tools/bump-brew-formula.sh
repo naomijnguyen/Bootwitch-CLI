@@ -50,8 +50,8 @@ import sys
 
 path, tag, url, sha, version = sys.argv[1:]
 text = pathlib.Path(path).read_text()
-text = re.sub(r"^url '.*'\n", f"url '{url}'\n", text, count=1, flags=re.MULTILINE)
-text = re.sub(r"^sha256 '.*'\n", f"sha256 '{sha}'\n", text, count=1, flags=re.MULTILINE)
+text = re.sub(r"^\s*url '.*'\n", "  url '" + url + "'\n", text, count=1, flags=re.MULTILINE)
+text = re.sub(r"^\s*sha256 '.*'\n", "  sha256 '" + sha + "'\n", text, count=1, flags=re.MULTILINE)
 text = re.sub(r"^  version '.*'\n", f"  version '{version}'\n", text, count=1, flags=re.MULTILINE)
 pathlib.Path(path).write_text(text)
 PY
