@@ -27,7 +27,6 @@ installation, background service setup, remote publishing, or automatic commits.
 
 ### Homebrew
 
-
 The easiest installation path for macOS (and Linuxbrew) is Homebrew:
 
 ```sh
@@ -42,6 +41,14 @@ bootwitch list
 ```
 
 Bootwitch requires Bash and Python 3 at runtime. Git is required for default project initialization (`bootwitch init`/`summon`).
+
+For a release package update workflow, run:
+
+```sh
+bash tools/bump-brew-formula.sh v0.2.1
+```
+
+This fetches the new release tarball, computes SHA-256, and updates `Formula/bootwitch.rb` in one step.
 
 ## Quick start
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Added Homebrew installation path via hosted formula (`Formula/bootwitch.rb`) for easier end-user install from GitHub, with Linuxbrew compatibility notes.
+- Added `tools/bump-brew-formula.sh` to automate formula updates for each release tag.
 
 ## v0.2.0 - 2026-09-12
 
