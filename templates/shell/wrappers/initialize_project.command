@@ -6,11 +6,11 @@
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
 # Version: 0.2.0
 # Purpose: Prepare folders, permissions, and generated component/function documentation.
-# Module: modules/paths.sh, modules/permissions.sh, modules/documentation.sh
+# Module: modules/adaptive_mounts.sh, modules/paths.sh, modules/log.sh, modules/checkpoint.sh, modules/permissions.sh, modules/header.sh, modules/documentation.sh
 # Arguments: Optional --pause enables interactive checkpoints.
 # Output: Permission changes and both documentation paths on stdout; checkpoints/errors on stderr.
 # Returns: 0 on success; nonzero on failure.
-# Dependencies: Bash 3.2+, dirname, basename, find, and project_root/paths/log/checkpoint/permissions/header/documentation modules and their dependencies.
+# Dependencies: Bash 3.2+, dirname, basename, find, and adaptive_mounts/paths/log/checkpoint/permissions/header/documentation modules and their dependencies.
 # Reads: Project marker, project.header, README, scripts, wrappers, and project modules.
 # Writes: Runtime directories, README component section, technical readthrough, and script/wrapper executable permissions.
 # Safety: Uses the wrapper location as its boundary and changes only this project.
@@ -22,16 +22,24 @@ set -u
 set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
-PROJECT_ROOT=$(CDPATH='' cd -- "$WRAPPER_DIR/.." && pwd)
-
-. "$PROJECT_ROOT/modules/project_root.sh"
-PROJECT_ROOT=$(project_find_root "$WRAPPER_DIR")
+. "$WRAPPER_DIR/../modules/adaptive_mounts.sh"
+if ! PROJECT_ROOT=$(project_mount_resolve_root "$PWD"); then
+  if ! PROJECT_ROOT=$(project_mount_resolve_root "$WRAPPER_DIR"); then
+    exit 1
+  fi
+fi
+if ! PROJECT_LANGUAGE=$(project_mount_detect_language "$PROJECT_ROOT"); then
+  exit 1
+fi
+if ! PROJECT_DOCUMENTATION_MODULE=$(project_mount_documentation_module "$PROJECT_ROOT" "$PROJECT_LANGUAGE"); then
+  exit 1
+fi
 . "$PROJECT_ROOT/modules/paths.sh"
 . "$PROJECT_ROOT/modules/log.sh"
 . "$PROJECT_ROOT/modules/checkpoint.sh"
 . "$PROJECT_ROOT/modules/permissions.sh"
 . "$PROJECT_ROOT/modules/header.sh"
-. "$PROJECT_ROOT/modules/documentation.sh"
+. "$PROJECT_DOCUMENTATION_MODULE"
 
 # Function: main
 # Purpose: Perform the starter's visible, repeatable initialization sequence.
