@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.2.0 - 2026-09-12
+
 - Prepare sharing: align explicit Bash settings, enforce universal headers, shorten starter-header prose, update and pin CI actions, and document the reproducible demo and header tradeoffs.
 - Require pinned, checksum-verified local ShellCheck in make check and CI; remove the npm wrapper dependency tree, fix lint findings, and test safe tool archive handling.
 - Replace final project copying with native atomic exclusive rename; require Python 3 for toolkit creation, retain completed staging and print a retry command on publication failure. Add collision, recovery, dependency, and interruption regressions.

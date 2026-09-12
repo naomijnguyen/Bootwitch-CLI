@@ -1,6 +1,6 @@
 # Bootwitch
 
-Current version: `v0.2.0-dev`
+Current version: `v0.2.0`
 
 Bootwitch is a small, portable project scaffolder for macOS and Linux. It turns
 a project idea into a consistent local workspace with predictable folders,
