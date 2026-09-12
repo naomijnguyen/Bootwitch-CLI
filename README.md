@@ -50,6 +50,9 @@ bash tools/bump-brew-formula.sh v0.2.1
 
 This fetches the new release tarball, computes SHA-256, and updates `Formula/bootwitch.rb` in one step.
 
+The Homebrew formula is kept in this repository (no separate tap required), and the
+formula is refreshed automatically on each published GitHub release.
+
 ## Quick start
 
 Run Bootwitch commands from the Bootwitch code folder, such as this repository's

@@ -1,0 +1,41 @@
+name: Update Homebrew formula
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  update-formula:
+    name: Bump formula for published tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Update Homebrew formula
+        id: bump
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          bash tools/bump-brew-formula.sh "${TAG_NAME}"
+
+      - name: Commit and push formula update
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          if git diff --quiet -- Formula/bootwitch.rb; then
+            echo "Formula already aligned with ${TAG_NAME}; nothing to do."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/bootwitch.rb
+          git commit -m "chore(release): bump Homebrew formula for ${TAG_NAME}"
+          git push
