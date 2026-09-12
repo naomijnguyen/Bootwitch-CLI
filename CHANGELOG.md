@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add release notes and release-state readme sync before tagging a new version.
+- Post-release fix: cleanly declare adaptive mount metadata and suppress documented dynamic-source lint warnings in shell template wrappers so generated projects stay `make check` clean.
 
 ## v0.2.1 - 2026-09-12
 
