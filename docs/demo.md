@@ -37,8 +37,8 @@ bash "$demo_project/tests/run.sh"
 bash "$demo_project/tests/run.sh"
 ```
 
-Both test runs should succeed. The bundled mutation tests work in disposable
-copies; they do not replace the original project's sample script.
+Both test runs should succeed to show repeatability. The bundled mutation tests work
+in disposable copies; they do not replace the original project's sample script.
 
 ## Show repeatability and refusal
 

@@ -1,6 +1,6 @@
 # Bootwitch Architecture
 
-Current version: `v0.2.0-dev`
+Current version: `v0.2.0`
 
 Bootwitch is a local scaffolding tool. Its job is to create predictable project
 workspaces without taking ownership of the user's machine, cloud accounts, or
@@ -241,7 +241,7 @@ The highest-value next steps are:
   layout;
 - add a template manifest or template-verification command;
 - complete a privacy and secret scan before publication;
-- choose a license and public Git identity;
+- add a CLI-level manifest command for template compatibility checks;
 - publish a short demo walkthrough;
 - add new templates only after the base and shell templates remain stable.
 

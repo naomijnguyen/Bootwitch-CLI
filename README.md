@@ -191,7 +191,7 @@ and do not replace `IFS` globally.
 Keep component usage and implementation detail in two readable views:
 
 - The README reference uses `@bootwitch:component` headers for purpose, invocation, dependencies, output, and safety boundaries.
-- `docs/technical-readthrough.md` uses `@bootwitch:function` annotations, grouped by source file with links to the code.
+- Generated shell projects also produce `docs/technical-readthrough.md` using `@bootwitch:function` annotations, grouped by source file with links to the code.
 
 The shared builder discovers annotated `.sh`, `.command`, and `.py` files. It
 reads comments as text without executing shell scripts or importing Python.
