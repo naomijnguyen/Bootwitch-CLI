@@ -67,6 +67,16 @@ to perform the actual release-note + formula update.
 Recent changes are tracked in [CHANGELOG.md](CHANGELOG.md). For curated release
 notes, see [`docs/release-notes/v0.2.1.md`](docs/release-notes/v0.2.1.md).
 
+To keep maintenance notes consistent, there is now a small release-log helper:
+
+```sh
+make log NOTE="Post-release maintenance note."
+```
+
+The helper reads the current release from `VERSION`, updates `CHANGELOG.md`, and
+adds the note to the matching `docs/release-notes/v<version>.md`. Use
+`RELEASE_VERSION=<version>` only when recording maintenance for another release.
+
 ## Quick start
 
 Run Bootwitch commands from the Bootwitch code folder, such as this repository's

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- [2026-09-12] Added automated release log helper with Make target (log) and log-maintenance script.
+
 - Add release notes and release-state readme sync before tagging a new version.
 - Post-release fix: cleanly declare adaptive mount metadata and suppress documented dynamic-source lint warnings in shell template wrappers so generated projects stay `make check` clean.
 
