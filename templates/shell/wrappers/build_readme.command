@@ -3,18 +3,18 @@
 # Name: build_readme.command
 # Display Name: Build README
 # Type: wrapper
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.2
-# Purpose: Refresh README's generated section from headers and annotations.
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
+# Version: 0.2.0
+# Purpose: Refresh the README component reference and separate technical readthrough.
 # Module: modules/documentation.sh
 # Calls: project_build_readme
 # Arguments: None.
-# Output: Updated README path on stdout; errors on stderr.
+# Output: Updated README and technical-readthrough paths on stdout; errors on stderr.
 # Returns: 0 on success; nonzero on failure.
 # Dependencies: Bash 3.2+, dirname, mkdir, project_root/paths/header/documentation modules and their dependencies.
 # Reads: Project-root marker, project.header, README.md, project modules, and annotated scripts.
-# Writes: Runtime directories, temporary README files, and the marked README section.
-# Safety: Replaces only the exact marked README section.
+# Writes: Runtime directories, staged documentation, the marked README section, and docs/technical-readthrough.md.
+# Safety: Preserves authored README text; replaces the generated readthrough; stages both before individual publication.
 # Example: bash wrappers/build_readme.command
 # @bootwitch:end
 

@@ -29,99 +29,51 @@ Run `./wrappers/initialize_project.command` to generate this section from
 `project.header` and the annotated component headers.
 <!-- BOOTWITCH:DOCS:END -->
 
-## How script headers become README documentation
+## Generated documentation
 
-The workflow is **create a script to refresh the README automatically; edit its
-header and rebuild when its behavior changes**. Keep the
-explanation beside the code; Bootwitch turns those marked comments into the
-project's component reference.
+Keep component usage and implementation detail in two readable views:
+
+- The README reference uses `@bootwitch:component` headers for purpose, invocation, dependencies, output, and safety boundaries.
+- `docs/technical-readthrough.md` uses `@bootwitch:function` annotations, grouped by source file with links to the code.
+
+The shared builder discovers annotated `.sh`, `.command`, and `.py` files. It
+reads comments as text without executing shell scripts or importing Python.
+Python discovery does not require Python in generated shell-project runtime.
 
 From the root of a generated shell project:
 
 ```sh
 bash scripts/new-script.sh sample-task scripts
-# After later edits to the script header:
+# After later edits to component or function annotations:
 bash wrappers/build_readme.command
 ```
 
-The first command creates `scripts/sample-task.sh` with a populated starter
-header and immediately refreshes the README, whether called directly or through
-`wrappers/new_script.command`. Choose an unused name when repeating the example:
-the generator refuses to overwrite an existing script. The second command is for
-refreshing documentation after later header edits.
+Script creation and project initialization refresh both views automatically.
+Direct source edits need the explicit build command. Running a script does not
+rebuild documentation. Keep the descriptions beside the code and update them
+when behavior changes; the renderer cannot infer behavior from implementation.
 
-If script creation succeeds but the README refresh fails, the script stays in
-place. The generator reports both outcomes, prints a retry command, and returns
-status 3. Fix the reported builder problem and retry the README command; do not
-recreate the script. The automatic refresh happens on creation, not each time the
-new script runs.
+Both component and function templates are included. Bash generation uses the
+annotated shell starter; Python files can use the reusable component-header
+fragment. The new-script command remains Bash-only. Every component keeps the
+13-field header, with actual creation/update dates and a component version.
+Function blocks describe inputs, outputs, returns, reads, writes, and safety.
+Keep every field on one line. Ordinary comments and Python docstrings are not
+exported; legacy date fields remain readable.
 
-For example, this excerpt from a script header:
+The README must contain exactly one ordered pair of Bootwitch documentation
+markers. Authored text outside those markers is preserved. The technical
+readthrough is wholly generated, so edit its source annotations rather than the
+output file. Rendering validates both views before publication. Each file is
+replaced atomically; the pair is not a single transaction. If README publication
+fails after the readthrough updates, rerun the builder to bring both up to date.
 
-```bash
-# @bootwitch:component
-# Name: sample-task.sh
-# Type: script
-# Dates: Created: 2026-09-11 | Last Updated: 2026-09-11
-# Version: 0.1.0
-# Purpose: Prepare project runtime directories and log the start of a custom workflow.
-# @bootwitch:end
-```
+If script creation succeeds but documentation refresh fails, the generator keeps
+the new script, reports status 3, and prints a builder retry command. Do not
+recreate the script. Existing generated projects need deliberate migration to
+receive newer template helpers.
 
-produces a component entry like this:
-
-> **`sample-task.sh`**
->
-> - **Type:** script
-> - **Dates:** Created: 2026-09-11 | Last Updated: 2026-09-11
-> - **Version:** 0.1.0
-> - **Purpose:** Prepare project runtime directories and log the start of a custom workflow.
-
-These dates are illustrative; a newly generated script receives its own creation
-date. The complete header also documents arguments, output, return behavior,
-dependencies, reads, writes, safety, and an example command.
-
-As you implement the script, update its header to describe what it actually does.
-Preserve Created, update Last Updated and Version when editing, then run
-`bash wrappers/build_readme.command` again. The builder reads the marked comments
-as text: it does not execute the documented scripts, infer behavior from their
-code, or change their dates and versions. Header edits appear on the next rebuild;
-they are not synchronized automatically.
-
-### Reference format and maintenance
-
-Run `./wrappers/build_readme.command` after adding or changing script headers.
-The builder reads `project.header` and marked `@bootwitch:component` /
-`@bootwitch:function` comment blocks recursively from `wrappers/`, `modules/`,
-`scripts/`, `src/`, and `tests/`. It reads scripts as text without executing them.
-New scripts created by `scripts/new-script.sh` include a component header.
-
-Each component header needs Name, Type, Dates, Version, Purpose, Arguments,
-Output, Returns, Dependencies, Reads, Writes, Safety, Example, and a closing
-`# @bootwitch:end` marker. Keep each field on one line. Supported optional fields
-are Display Name, Wrapper, Module, Calls, Created, Last Updated, and How it works.
-The renderer supports the complete field set: Name, Type, Dates, Version, Purpose, Arguments, Output, Returns,
-Dependencies, Reads, Writes, How it works, Safety, and Example.
-Update the starter's Purpose and behavior fields when implementing a script.
-Every script header includes a combined Dates line and a separate Version line. Dates use
-YYYY-MM-DD. Legacy Created values identify their first tracked/documented date
-when original creation is unknown; copying a bundled script preserves its source
-history. New custom scripts receive their own creation/update dates when generated.
-
-Version is the individual script revision, separate from the project release.
-Existing scripts start at 0.1.0 when this convention is adopted; that baseline does
-not reconstruct earlier script versions. New scripts also start at 0.1.0.
-On edits, preserve Created, set Last Updated, and bump Version: patch for fixes or
-documentation changes, minor for compatible features, major for breaking changes.
-README rebuilding displays these values; it does not change dates or versions.
-
-Runnable scripts place `set -e`, `set -u`, and `set -o pipefail` on
-separate lines after the header so each safety setting is visible. Bootwitch
-does not set `IFS` globally; it uses quoting, arrays, and scoped reads instead.
-
-The README must have exactly one start marker followed by exactly one end marker.
-Invalid marker pairs are rejected before the README is changed. Human-authored
-text outside a valid pair is preserved.
+See [the annotation guide](docs/component-annotations.md) for the template fields and refresh rules.
 
 ## Tests
 
@@ -129,24 +81,18 @@ text outside a valid pair is preserved.
 ./tests/run.sh
 ```
 
-### Reliable README builds
+### Reliable documentation builds
 
-The current header format is `# Dates: Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD`,
-followed by `# Version: ...`. Legacy separate Created and Last Updated fields still
-render. If both formats exist, Dates takes precedence.
+The builder validates marked blocks and requires nonempty names, balanced markers,
+and unique fields. Project purpose, type, version, status, and primary wrapper
+must also be populated. Files are discovered in stable order.
 
-The builder validates marked blocks and requires a nonempty Name, matching block
-markers, and unique field names within each block. Unmarked comments are ignored.
-Required project facts are PROJECT_PURPOSE, PROJECT_TYPE, PROJECT_VERSION,
-PROJECT_STATUS, and PRIMARY_WRAPPER; missing or blank values stop the build.
-
-Files are discovered in stable bytewise path order within each component folder.
-The completed README is staged on the same filesystem and atomically replaces the
-original only after validation and rendering succeed. Its permission mode is
-preserved, and staging files are cleaned up on ordinary failures and catchable
-signals. A failed build before publication leaves the previous README intact.
-This does not lock out simultaneous human edits; avoid editing the README while
-rebuilding it. Existing symbolic-link READMEs are rejected explicitly.
+Both views are rendered before publication. Validation or rendering failure leaves
+both existing documents unchanged. Each replacement preserves the existing file's
+permission mode and staging is cleaned on ordinary failure or catchable signals.
+The two replacements are sequential; a late README publication failure can leave
+the new readthrough with the old README and is reported explicitly. Rerun the
+builder to refresh both. Symlink documentation destinations are rejected.
 
 ### Safe creation and tests
 

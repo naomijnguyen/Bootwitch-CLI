@@ -26,11 +26,16 @@ set -o pipefail
 # Resolve from this file rather than the caller's current working directory.
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
-# Function: find_root_for_this_script
+# @bootwitch:function
+# Name: find_root_for_this_script
 # Purpose: Keep this script working if it moves deeper inside the same project.
 # Arguments: None; the search begins at SCRIPT_DIR.
 # Output: Prints the directory containing .bootwitch/project.conf.
 # Returns: 0 when found or 1 after safely reaching the filesystem root.
+# Reads: Parent-directory metadata and the project-root marker.
+# Writes: None.
+# Safety: Stops at the filesystem root and never changes directories in the caller.
+# @bootwitch:end
 find_root_for_this_script() {
   local search_dir=$SCRIPT_DIR
   local parent_dir
@@ -56,12 +61,16 @@ PROJECT_ROOT=$(find_root_for_this_script)
 . "$PROJECT_ROOT/modules/paths.sh"
 . "$PROJECT_ROOT/modules/log.sh"
 
-# Function: main
+# @bootwitch:function
+# Name: main
 # Purpose: Provide one obvious starting point for this script's workflow.
-# Arguments: Receives all command-line arguments passed to the script.
-# Output: TODO - document stdout, stderr, and files this script creates.
-# Returns: 0 on success; document intentional non-zero statuses here.
-# How it works: Replace the starter log line with small, named function calls.
+# Arguments: Receives command-line arguments; the starter does not interpret them.
+# Output: A timestamped start message on stderr and in the runtime log.
+# Returns: 0 on success; strict mode stops the script on unhandled setup or logging failures.
+# Reads: The discovered project-root marker and current UTC time.
+# Writes: Runtime directories and an appended logs/project.log entry.
+# Safety: Uses project-relative runtime paths; does not collect host observations.
+# @bootwitch:end
 main() {
   project_set_paths "$PROJECT_ROOT"
   project_prepare_directories

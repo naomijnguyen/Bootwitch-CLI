@@ -2,8 +2,8 @@
 # @bootwitch:component
 # Name: tests/test_shell.sh
 # Type: test
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.2.0
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
+# Version: 0.3.0
 # Purpose: Exercise universal headers, the shell demo, script generator, root discovery, and permission boundaries.
 # Arguments: None.
 # Output: Mostly silent on success; delegated errors on failure.
@@ -81,14 +81,20 @@ grep -q '^## Project overview$' "$PROJECT_ROOT/README.md"
 grep -q '^## Component reference$' "$PROJECT_ROOT/README.md"
 grep -q 'hello.command' "$PROJECT_ROOT/README.md"
 grep -q 'make_executable.command' "$PROJECT_ROOT/README.md"
-grep -q 'project_create_report' "$PROJECT_ROOT/README.md"
+grep -q 'project_create_report' "$PROJECT_ROOT/docs/technical-readthrough.md"
+if grep -q '^#### Function:' "$PROJECT_ROOT/README.md"; then
+  printf 'Function details leaked into the component README.\n' >&2
+  exit 1
+fi
 
 # The project-local generator should create one documented executable and must
 # refuse to replace it when called again with the same name.
 generator_output=$(/bin/bash "$PROJECT_ROOT/scripts/new-script.sh" "$fixture_name" scripts)
 printf '%s\n' "$generator_output" | grep -q "Created scripts/${fixture_name}.sh"
 test -x "$PROJECT_ROOT/scripts/${fixture_name}.sh"
-grep -q '# Function: main' "$PROJECT_ROOT/scripts/${fixture_name}.sh"
+grep -q '# Name: main' "$PROJECT_ROOT/scripts/${fixture_name}.sh"
+grep -Fq "scripts/${fixture_name}.sh" "$PROJECT_ROOT/docs/technical-readthrough.md"
+grep -Fq '#### Function: `find_root_for_this_script`' "$PROJECT_ROOT/docs/technical-readthrough.md"
 grep -q '^# @bootwitch:component$' "$PROJECT_ROOT/scripts/${fixture_name}.sh"
 check_universal_header "$PROJECT_ROOT/scripts/${fixture_name}.sh"
 grep -Fxq 'set -e' "$PROJECT_ROOT/scripts/${fixture_name}.sh"

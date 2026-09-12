@@ -2,13 +2,13 @@
 # @bootwitch:component
 # Name: tests/test_documentation.sh
 # Type: test
-# Dates: Created: 2026-09-11 | Last Updated: 2026-09-11
-# Version: 0.3.0
-# Purpose: Verify universal headers, rendering, recursive discovery, automatic refresh, and README preservation.
+# Dates: Created: 2026-09-11 | Last Updated: 2026-09-12
+# Version: 0.4.0
+# Purpose: Verify separate component/function views, Bash/Python discovery, refresh, and safe documentation publication.
 # Arguments: None.
 # Output: README integration success message; failures on stderr.
 # Returns: 0 on success; nonzero on failure.
-# Dependencies: Python 3; Bash 3.2+, dirname, mktemp, rm, grep, date, mkdir, mv, cat, cp, cmp, head, tail, find, awk, sed, chmod, ls; CLI and builder dependencies.
+# Dependencies: Python 3; Bash 3.2+, dirname, mktemp, rm, grep, date, mkdir, mv, ln, cat, cp, cmp, head, tail, find, awk, sed, chmod, ls; CLI and builder dependencies.
 # Reads: CLI, bundled templates, and generated README/script fixtures.
 # Writes: Temporary generated project, scripts, and README fixtures; removes its allocated directory on exit.
 # Safety: Runs destructive marker cases only in disposable README fixtures; verifies scripts are read without execution.
@@ -28,11 +28,20 @@ trap 'rm -rf "$TEST_TMP"' EXIT HUP INT TERM
 project=$TEST_TMP/'projects with spaces'/docs-demo
 builder=$project/wrappers/build_readme.command
 readme=$project/README.md
+technical=$project/docs/technical-readthrough.md
 start='<!-- BOOTWITCH:DOCS:START -->'
 finish='<!-- BOOTWITCH:DOCS:END -->'
 printf 'Human introduction\n%s\nOld generated text\n%s\nHuman ending\n' "$start" "$finish" > "$readme"
 grep -q '{{SCRIPT_CREATED_DATE}}' "$project/.bootwitch/templates/script.sh.tpl"
 grep -q '{{SCRIPT_UPDATED_DATE}}' "$project/.bootwitch/templates/script.sh.tpl"
+test -f "$project/.bootwitch/templates/python-component.header.tpl"
+test -f "$project/.bootwitch/templates/function-annotation.tpl"
+for metadata_field in Name Type Dates Version Purpose Arguments Output Returns Dependencies Reads Writes Safety Example; do
+  grep -q "^# $metadata_field: ." "$project/.bootwitch/templates/python-component.header.tpl"
+done
+for metadata_field in Name Purpose Arguments Output Returns Reads Writes Safety; do
+  grep -q "^# $metadata_field: ." "$project/.bootwitch/templates/function-annotation.tpl"
+done
 # Every bundled generated shell file begins with the universal header and
 # contributes a complete, populated component entry.
 /bin/bash "$builder" >/dev/null
@@ -50,7 +59,10 @@ done < <(find "$project/wrappers" "$project/modules" "$project/scripts" "$projec
 creation_output=$(/bin/bash "$project/scripts/new-script.sh" sample scripts)
 printf '%s\n' "$creation_output" | grep -q '^Created scripts/sample.sh$'
 printf '%s\n' "$creation_output" | grep -q '^README updated: '
+printf '%s\n' "$creation_output" | grep -q '^Technical readthrough updated: '
 grep -q '^### `sample.sh`$' "$readme"
+grep -Fq '### `scripts/sample.sh`' "$technical"
+grep -Fq '#### Function: `find_root_for_this_script`' "$technical"
 /bin/bash "$project/wrappers/new_script.command" sample-test tests >/dev/null
 grep -q '^### `sample-test.sh`$' "$readme"
 # Both dates belong to script generation; no script metadata tokens may remain.
@@ -92,16 +104,62 @@ cat > "$project/src/nested folder/read-only-probe.sh" <<'PROBE'
 # @bootwitch:end
 printf executed > "${0}.executed"
 PROBE
+cat > "$project/src/nested folder/python-probe.py" <<'PYPROBE'
+#!/usr/bin/env python3
+# @bootwitch:component
+# Name: python-probe.py
+# Type: script
+# Dates: Created: 2001-01-01 | Last Updated: 2001-01-01
+# Version: 0.1.0
+# Purpose: Exercise Python component discovery without executing source.
+# Arguments: None.
+# Output: Synthetic fixture output only if explicitly executed.
+# Returns: Fixture process status.
+# Dependencies: Python 3 standard library.
+# Reads: No host observation sources.
+# Writes: A sentinel only if executed; documentation must never create it.
+# Safety: Documentation reads this fixture as text.
+# Example: python3 python-probe.py
+# @bootwitch:end
+# @bootwitch:function
+# Name: python_probe_function
+# Purpose: Keep Python implementation notes in the technical view.
+# Arguments: None.
+# Output: A synthetic string.
+# Returns: The string synthetic.
+# Reads: None.
+# Writes: None.
+# Safety: No host inspection.
+# @bootwitch:end
+def python_probe_function():
+    return "synthetic"
+
+from pathlib import Path
+Path(__file__ + ".executed").write_text("executed")
+PYPROBE
+ln -s "$project/src/nested folder/python-probe.py" "$project/src/nested folder/ignored-link.py"
 /bin/bash "$builder" >/dev/null
 grep -q '^### `sample.sh`$' "$readme"
 grep -q '^### `read-only-probe`$' "$readme"
-grep -q '^#### Function: `probe_function`$' "$readme"
+grep -q '^#### Function: `probe_function`$' "$technical"
+grep -q '^### `python-probe.py`$' "$readme"
+grep -q '^#### Function: `python_probe_function`$' "$technical"
+test "$(grep -c '^### `python-probe.py`$' "$readme")" -eq 1
+test ! -e "$project/src/nested folder/python-probe.py.executed"
+if grep -q '^#### Function:' "$readme"; then exit 1; fi
+if grep -q 'Exercise Python component discovery' "$technical"; then exit 1; fi
+for metadata_field in Type Dates Version Purpose Arguments Output Returns Dependencies Reads Writes Safety Example; do
+  metadata_value=$(awk -v key="$metadata_field" 'index($0, "# " key ": ") == 1 { print substr($0, length(key) + 5); exit }' "$project/src/nested folder/python-probe.py")
+  grep -Fq "**$metadata_field:** $metadata_value" "$readme"
+done
 test ! -e "$project/src/nested folder/read-only-probe.sh.executed"
 test "$(head -n 1 "$readme")" = 'Human introduction'
 test "$(tail -n 1 "$readme")" = 'Human ending'
 cp "$readme" "$TEST_TMP/expected"
+cp "$technical" "$TEST_TMP/technical-expected"
 /bin/bash "$builder" >/dev/null
 cmp "$readme" "$TEST_TMP/expected"
+cmp "$technical" "$TEST_TMP/technical-expected"
 
 for marker_case in missing_start missing_end duplicate_start duplicate_end reversed extra_pair; do
   case "$marker_case" in
@@ -120,6 +178,7 @@ for marker_case in missing_start missing_end duplicate_start duplicate_end rever
   fi
   cmp "$readme" "$TEST_TMP/expected"
   grep -q 'exactly one ordered marker pair' "$TEST_TMP/stderr"
+  cmp "$technical" "$TEST_TMP/technical-expected"
 done
 # The last invalid-marker fixture exercises partial success through the wrapper.
 cp "$readme" "$TEST_TMP/invalid-readme"
@@ -128,7 +187,7 @@ creation_status=0
 test "$creation_status" -eq 3
 test -x "$project/src/retained.sh"
 grep -q '^Created src/retained.sh$' "$TEST_TMP/stdout"
-grep -q 'Script created, but README refresh failed' "$TEST_TMP/stderr"
+grep -q 'Script created, but documentation refresh failed' "$TEST_TMP/stderr"
 grep -q 'then retry: bash ' "$TEST_TMP/stderr"
 cmp "$readme" "$TEST_TMP/invalid-readme"
 cp "$project/src/retained.sh" "$TEST_TMP/retained-script"
@@ -146,6 +205,7 @@ cmp "$project/src/retained.sh" "$TEST_TMP/retained-script"
 # Missing/empty required project values must not publish partial documentation.
 cp "$project/project.header" "$TEST_TMP/header-original"
 cp "$readme" "$TEST_TMP/readme-original"
+cp "$technical" "$TEST_TMP/technical-original"
 for required_key in PROJECT_PURPOSE PROJECT_TYPE PROJECT_VERSION PROJECT_STATUS PRIMARY_WRAPPER; do
   for metadata_case in missing empty; do
     if test "$metadata_case" = missing; then
@@ -156,6 +216,7 @@ for required_key in PROJECT_PURPOSE PROJECT_TYPE PROJECT_VERSION PROJECT_STATUS 
     if /bin/bash "$builder" > "$TEST_TMP/stdout" 2> "$TEST_TMP/stderr"; then exit 1; fi
     grep -q "$required_key" "$TEST_TMP/stderr"
     cmp "$readme" "$TEST_TMP/readme-original"
+    cmp "$technical" "$TEST_TMP/technical-original"
   done
 done
 cp "$TEST_TMP/header-original" "$project/project.header"
@@ -173,9 +234,17 @@ for block_case in unclosed missing_name blank_name nested orphan duplicate; do
   if /bin/bash "$builder" > "$TEST_TMP/stdout" 2> "$TEST_TMP/stderr"; then exit 1; fi
   grep -q 'scripts/broken.sh:[0-9]' "$TEST_TMP/stderr"
   cmp "$readme" "$TEST_TMP/readme-original"
+  cmp "$technical" "$TEST_TMP/technical-original"
   test -z "$(find "$project" -maxdepth 1 -name '.bootwitch-readme.*' -print)"
 done
 rm "$project/scripts/broken.sh"
+# A malformed function must fail even while rendering the component-only view.
+printf '# @bootwitch:component\n# Name: malformed-function\n# @bootwitch:end\n# @bootwitch:function\n# Name: unfinished\n' > "$project/scripts/broken.py"
+if /bin/bash "$builder" > "$TEST_TMP/stdout" 2> "$TEST_TMP/stderr"; then exit 1; fi
+grep -q 'missing closing marker' "$TEST_TMP/stderr"
+cmp "$readme" "$TEST_TMP/readme-original"
+cmp "$technical" "$TEST_TMP/technical-original"
+rm "$project/scripts/broken.py"
 
 # Legacy dates remain readable; compact dates take precedence when both exist.
 cat > "$project/scripts/legacy.sh" <<'LEGACY'
@@ -199,12 +268,29 @@ if grep -q 'must-not-render' "$readme"; then exit 1; fi
 
 # Simulate publication failure: old content and mode survive, staging is removed.
 cp "$readme" "$TEST_TMP/readme-original"
+cp "$technical" "$TEST_TMP/technical-original"
 mkdir "$TEST_TMP/failing-bin"
 printf '#!/bin/bash\nexit 1\n' > "$TEST_TMP/failing-bin/mv"
 chmod +x "$TEST_TMP/failing-bin/mv"
 if PATH="$TEST_TMP/failing-bin:$PATH" /bin/bash "$builder" > "$TEST_TMP/stdout" 2> "$TEST_TMP/stderr"; then exit 1; fi
 cmp "$readme" "$TEST_TMP/readme-original"
+cmp "$technical" "$TEST_TMP/technical-original"
 test -z "$(find "$project" -maxdepth 1 -name '.bootwitch-readme.*' -print)"
+# A late README publication failure reports the already-published readthrough.
+real_mv=$(command -v mv)
+cat > "$TEST_TMP/failing-bin/mv" <<'MVFAIL'
+#!/bin/bash
+case "$3" in
+  */README.md) exit 1 ;;
+esac
+exec "$BOOTWITCH_TEST_REAL_MV" "$@"
+MVFAIL
+printf '# @bootwitch:function\n# Name: late_publication_probe\n# Purpose: Verify partial publication reporting.\n# @bootwitch:end\n' > "$project/scripts/late-publication.sh"
+if BOOTWITCH_TEST_REAL_MV="$real_mv" PATH="$TEST_TMP/failing-bin:$PATH" /bin/bash "$builder" > "$TEST_TMP/stdout" 2> "$TEST_TMP/stderr"; then exit 1; fi
+grep -q 'technical readthrough updated, but README publication failed' "$TEST_TMP/stderr"
+cmp "$readme" "$TEST_TMP/readme-original"
+grep -q 'late_publication_probe' "$technical"
+cp "$technical" "$TEST_TMP/technical-original"
 # Simulate a partial rendering write after staging starts, before publication.
 rm "$TEST_TMP/failing-bin/mv"
 real_awk=$(command -v awk)
@@ -219,11 +305,23 @@ chmod +x "$TEST_TMP/failing-bin/awk"
 if BOOTWITCH_TEST_REAL_AWK="$real_awk" PATH="$TEST_TMP/failing-bin:$PATH" /bin/bash "$builder" > "$TEST_TMP/stdout" 2> "$TEST_TMP/stderr"; then exit 1; fi
 grep -q 'simulated render failure' "$TEST_TMP/stderr"
 cmp "$readme" "$TEST_TMP/readme-original"
+cmp "$technical" "$TEST_TMP/technical-original"
 test -z "$(find "$project" -maxdepth 1 -name '.bootwitch-readme.*' -print)"
 chmod 640 "$readme"
 /bin/bash "$builder" >/dev/null
 # Portable permission comparison, without platform-specific stat flags.
 python3 -c 'import os, stat, sys; assert stat.S_IMODE(os.stat(sys.argv[1]).st_mode) == 0o640' "$readme"
+
+# Symlinked readthrough destinations must not replace their target or README.
+cp "$readme" "$TEST_TMP/readme-original"
+mv "$technical" "$TEST_TMP/saved-technical"
+cp "$TEST_TMP/saved-technical" "$TEST_TMP/technical-original"
+ln -s "$TEST_TMP/saved-technical" "$technical"
+if /bin/bash "$builder" > "$TEST_TMP/stdout" 2> "$TEST_TMP/stderr"; then exit 1; fi
+cmp "$readme" "$TEST_TMP/readme-original"
+cmp "$TEST_TMP/saved-technical" "$TEST_TMP/technical-original"
+rm "$technical"
+mv "$TEST_TMP/saved-technical" "$technical"
 
 # Directory insertion order must not affect generated documentation.
 mkdir "$project/src/order-check"
@@ -231,11 +329,13 @@ printf '# @bootwitch:component\n# Name: order-z\n# @bootwitch:end\n' > "$project
 printf '# @bootwitch:component\n# Name: order-a\n# @bootwitch:end\n' > "$project/src/order-check/a.sh"
 /bin/bash "$builder" >/dev/null
 cp "$readme" "$TEST_TMP/ordered-readme"
+cp "$technical" "$TEST_TMP/ordered-technical"
 mv "$project/src/order-check" "$TEST_TMP/order-original"
 mkdir "$project/src/order-check"
 cp "$TEST_TMP/order-original/a.sh" "$project/src/order-check/a.sh"
 cp "$TEST_TMP/order-original/z.sh" "$project/src/order-check/z.sh"
 /bin/bash "$builder" >/dev/null
 cmp "$readme" "$TEST_TMP/ordered-readme"
+cmp "$technical" "$TEST_TMP/ordered-technical"
 
 printf 'README integration tests passed.\n'

@@ -2,16 +2,16 @@
 # @bootwitch:component
 # Name: new-script
 # Type: script
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.2.3
-# Purpose: Create one annotated project script and refresh its README reference.
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
+# Version: 0.3.0
+# Purpose: Create one annotated project script and refresh both generated documentation views.
 # Wrapper: wrappers/new_script.command
 # Arguments: NAME [scripts|src|tests]; default destination is scripts.
-# Output: Created script and updated README paths on stdout; errors and refresh retry instructions on stderr.
+# Output: Created script and refreshed README/readthrough paths on stdout; errors and retry instructions on stderr.
 # Returns: 0 when creation and refresh succeed; 3 when the script exists but refresh failed; other nonzero statuses for creation errors.
 # Dependencies: Bash 3.2+, dirname, basename, sed, date, mktemp, chmod, cat, rm; wrappers/build_readme.command and its dependencies.
 # Reads: Script template; README builder reads project metadata, README, and annotated scripts.
-# Writes: New executable script, temporary files, runtime directories, and generated README section.
+# Writes: New executable script, temporary files, runtime directories, README component section, and technical readthrough.
 # Safety: Validates name and area, refuses existing destinations, and cleans up the exact allocated temporary file.
 # Example: bash scripts/new-script.sh sample-task scripts
 # @bootwitch:end
@@ -124,7 +124,7 @@ main() {
   if /bin/bash "$PROJECT_ROOT/wrappers/build_readme.command"; then
     return 0
   fi
-  printf 'new-script: Script created, but README refresh failed: %s/%s.sh\n' "$script_area" "$script_name" >&2
+  printf 'new-script: Script created, but documentation refresh failed: %s/%s.sh\n' "$script_area" "$script_name" >&2
   printf 'Fix the README builder error above, then retry: bash %q\n' "$PROJECT_ROOT/wrappers/build_readme.command" >&2
   return 3
 }

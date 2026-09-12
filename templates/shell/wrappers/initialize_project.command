@@ -3,16 +3,16 @@
 # Name: initialize_project.command
 # Display Name: Initialize Project
 # Type: wrapper
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.2
-# Purpose: Prepare folders, permissions, and generated README documentation.
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
+# Version: 0.2.0
+# Purpose: Prepare folders, permissions, and generated component/function documentation.
 # Module: modules/paths.sh, modules/permissions.sh, modules/documentation.sh
 # Arguments: Optional --pause enables interactive checkpoints.
-# Output: Permission changes and README path on stdout; checkpoints/errors on stderr.
+# Output: Permission changes and both documentation paths on stdout; checkpoints/errors on stderr.
 # Returns: 0 on success; nonzero on failure.
 # Dependencies: Bash 3.2+, dirname, basename, find, and project_root/paths/log/checkpoint/permissions/header/documentation modules and their dependencies.
 # Reads: Project marker, project.header, README, scripts, wrappers, and project modules.
-# Writes: Runtime directories, generated README section, and executable permissions on project scripts/wrappers.
+# Writes: Runtime directories, README component section, technical readthrough, and script/wrapper executable permissions.
 # Safety: Uses the wrapper location as its boundary and changes only this project.
 # Example: bash wrappers/initialize_project.command
 # @bootwitch:end
@@ -64,7 +64,7 @@ main() {
   project_checkpoint 'Runnable project files are executable.'
 
   project_build_readme
-  project_checkpoint 'README documentation is refreshed.'
+  project_checkpoint 'README and technical readthrough are refreshed.'
 
   test -f "$PROJECT_ROOT/project.header"
   test -f "$PROJECT_ROOT/.bootwitch/project.conf"

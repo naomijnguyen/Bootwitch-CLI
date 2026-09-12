@@ -21,3 +21,14 @@ Create each new project script from the canonical annotated template:
 
 The destination defaults to `scripts` and may be `scripts`, `src`, or `tests`.
 The generator refuses to overwrite an existing path.
+
+The generator refreshes both the README component reference and
+`docs/technical-readthrough.md`. After direct source edits, rebuild both with:
+
+```sh
+bash wrappers/build_readme.command
+```
+
+Python files can use the bundled component-header fragment; marked Python
+comments are discovered as text. The generated shell project and documentation
+builder still run without Python unless your own code requires it.

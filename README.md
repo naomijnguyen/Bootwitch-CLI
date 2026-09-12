@@ -186,77 +186,49 @@ inputs and outputs, dependencies, reads/writes, safety boundaries, and an exampl
 Runnable files show `set -e`, `set -u`, and `set -o pipefail` separately
 and do not replace `IFS` globally.
 
-## Generated Documentation
+## Generated documentation
 
-Shell projects combine human-authored README text with a marked reference built
-from project facts in `project.header` and script annotations.
+Keep component usage and implementation detail in two readable views:
 
-The workflow is **create a script to refresh the README automatically; edit its
-header and rebuild when its behavior changes**. Keep the
-explanation beside the code; Bootwitch turns those marked comments into the
-project's component reference.
+- The README reference uses `@bootwitch:component` headers for purpose, invocation, dependencies, output, and safety boundaries.
+- `docs/technical-readthrough.md` uses `@bootwitch:function` annotations, grouped by source file with links to the code.
+
+The shared builder discovers annotated `.sh`, `.command`, and `.py` files. It
+reads comments as text without executing shell scripts or importing Python.
+Python discovery does not require Python in generated shell-project runtime.
 
 From the root of a generated shell project:
 
 ```sh
 bash scripts/new-script.sh sample-task scripts
-# After later edits to the script header:
+# After later edits to component or function annotations:
 bash wrappers/build_readme.command
 ```
 
-The first command creates `scripts/sample-task.sh` with a populated starter
-header and immediately refreshes the README, whether called directly or through
-`wrappers/new_script.command`. Choose an unused name when repeating the example:
-the generator refuses to overwrite an existing script. The second command is for
-refreshing documentation after later header edits.
+Script creation and project initialization refresh both views automatically.
+Direct source edits need the explicit build command. Running a script does not
+rebuild documentation. Keep the descriptions beside the code and update them
+when behavior changes; the renderer cannot infer behavior from implementation.
 
-If script creation succeeds but the README refresh fails, the script stays in
-place. The generator reports both outcomes, prints a retry command, and returns
-status 3. Fix the reported builder problem and retry the README command; do not
-recreate the script. The automatic refresh happens on creation, not each time the
-new script runs.
+Both component and function templates are included. Bash generation uses the
+annotated shell starter; Python files can use the reusable component-header
+fragment. The new-script command remains Bash-only. Every component keeps the
+13-field header, with actual creation/update dates and a component version.
+Function blocks describe inputs, outputs, returns, reads, writes, and safety.
+Keep every field on one line. Ordinary comments and Python docstrings are not
+exported; legacy date fields remain readable.
 
-For example, this excerpt from a script header:
+The README must contain exactly one ordered pair of Bootwitch documentation
+markers. Authored text outside those markers is preserved. The technical
+readthrough is wholly generated, so edit its source annotations rather than the
+output file. Rendering validates both views before publication. Each file is
+replaced atomically; the pair is not a single transaction. If README publication
+fails after the readthrough updates, rerun the builder to bring both up to date.
 
-```bash
-# @bootwitch:component
-# Name: sample-task.sh
-# Type: script
-# Dates: Created: 2026-09-11 | Last Updated: 2026-09-11
-# Version: 0.1.0
-# Purpose: Prepare project runtime directories and log the start of a custom workflow.
-# @bootwitch:end
-```
-
-produces a component entry like this:
-
-> **`sample-task.sh`**
->
-> - **Type:** script
-> - **Dates:** Created: 2026-09-11 | Last Updated: 2026-09-11
-> - **Version:** 0.1.0
-> - **Purpose:** Prepare project runtime directories and log the start of a custom workflow.
-
-These dates are illustrative; a newly generated script receives its own creation
-date. The complete header also documents arguments, output, return behavior,
-dependencies, reads, writes, safety, and an example command.
-
-As you implement the script, update its header to describe what it actually does.
-Preserve Created, update Last Updated and Version when editing, then run
-`bash wrappers/build_readme.command` again. The builder reads the marked comments
-as text: it does not execute the documented scripts, infer behavior from their
-code, or change their dates and versions. Header edits appear on the next rebuild;
-they are not synchronized automatically.
-
-The builder discovers `.sh` and `.command` files recursively in `wrappers/`,
-`modules/`, `scripts/`, `src/`, and `tests/`. It includes marked
-`@bootwitch:component` and `@bootwitch:function` blocks; ordinary unmarked comments
-are not exported. Keep each header field on one line.
-
-Only the region between the README's Bootwitch documentation markers is replaced.
-Text outside it, including this kind of walkthrough, stays human-authored. The
-builder rejects missing, duplicate, or reversed marker pairs before changing the
-README. It also prepares the project's runtime folders as needed.
+If script creation succeeds but documentation refresh fails, the generator keeps
+the new script, reports status 3, and prints a builder retry command. Do not
+recreate the script. Existing generated projects need deliberate migration to
+receive newer template helpers.
 
 ## Adaptive Paths
 
