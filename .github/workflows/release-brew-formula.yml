@@ -79,15 +79,13 @@ jobs:
             exit 0
           fi
 
-          cat > /tmp/release_notes.txt <<EOF
-${current_body}
-
-## Bootwitch Distribution
-
-- Homebrew formula refreshed for tag ${TAG_NAME}: [Formula/bootwitch.rb](https://raw.githubusercontent.com/naomijnguyen/bootwitch/main/Formula/bootwitch.rb)
-- Tarball URL: ${FORMULA_URL}
-- SHA-256: \`${FORMULA_SHA}\`
-EOF
+          {
+            printf '%s\n\n' "${current_body}"
+            printf '%s\n\n' '## Bootwitch Distribution'
+            printf '%s\n' "- Homebrew formula refreshed for tag ${TAG_NAME}: [Formula/bootwitch.rb](https://raw.githubusercontent.com/naomijnguyen/bootwitch/main/Formula/bootwitch.rb)"
+            printf '%s\n' "- Tarball URL: ${FORMULA_URL}"
+            printf '%s\n' "- SHA-256: \`${FORMULA_SHA}\`"
+          } > /tmp/release_notes.txt
 
           gh release edit "${TAG_NAME}" --notes-file /tmp/release_notes.txt
 
