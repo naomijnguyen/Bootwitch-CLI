@@ -1,6 +1,6 @@
 # Bootwitch
 
-Current version: `v0.2.0`
+Current version: `v0.2.1`
 
 Bootwitch is a small, portable project scaffolder for macOS and Linux. It turns
 a project idea into a consistent local workspace with predictable folders,
@@ -61,6 +61,11 @@ gh workflow run release-brew-formula.yml -f tag_name=v0.2.1 -f dry_run=true
 
 Use `dry_run=true` to check the bump path before committing, and `dry_run=false`
 to perform the actual release-note + formula update.
+
+## Release notes
+
+Recent changes are tracked in [CHANGELOG.md](CHANGELOG.md). For curated release
+notes, see [`docs/release-notes/v0.2.1.md`](docs/release-notes/v0.2.1.md).
 
 ## Quick start
 

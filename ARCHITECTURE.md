@@ -1,6 +1,6 @@
 # Bootwitch Architecture
 
-Current version: `v0.2.0`
+Current version: `v0.2.1`
 
 Bootwitch is a local scaffolding tool. Its job is to create predictable project
 workspaces without taking ownership of the user's machine, cloud accounts, or

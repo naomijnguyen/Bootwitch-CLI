@@ -1,10 +1,15 @@
 # Changelog
 
 ## Unreleased
+
+- Add release notes and release-state readme sync before tagging a new version.
+
+## v0.2.1 - 2026-09-12
+
 - Generate separate component README and function-level technical readthrough views from shared Bash/Python annotations; refresh both on initialization and script creation.
 - Include reusable Python component and language-neutral function header fragments, with marked function notes in the Bash starter.
 - Add documentation separation, Python non-execution, and two-output failure/recovery regression coverage without adding Python to generated shell-project runtime.
- - Added release workflow `.github/workflows/release-brew-formula.yml` to auto-update `Formula/bootwitch.rb` on `release.published` events (no separate tap required).
+- Added release workflow `.github/workflows/release-brew-formula.yml` to auto-update `Formula/bootwitch.rb` on `release.published` events (no separate tap required).
 - Added Homebrew installation path via hosted formula (`Formula/bootwitch.rb`) for easier end-user install from GitHub, with Linuxbrew compatibility notes.
 - Added `tools/bump-brew-formula.sh` to automate formula updates for each release tag.
 
