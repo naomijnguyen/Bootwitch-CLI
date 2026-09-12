@@ -1,8 +1,12 @@
 # A five-minute Bootwitch demo
 
+Naturally, I did it backwards: I started with the workflow I wanted, then learned
+what I needed to make it safer and easier to repeat. This is the shortest path
+through that workflow.
+
 Run these commands in Bash from the cloned Bootwitch repository. Project creation
-requires Bash 3.2+, Python 3, and native exclusive rename support on macOS or Linux.
-The generated shell project itself runs with Bash and standard command-line tools.
+needs Bash 3.2+ and Python 3 on macOS or Linux. Once the shell project exists, it
+runs with Bash and standard command-line tools.
 
 ## Create a disposable project
 
@@ -13,8 +17,8 @@ demo_project="$demo_root/demo"
 bash "$demo_project/wrappers/hello.command"
 ```
 
-The creation command prints a `Created` line only after publication succeeds.
-The greeting introduces the generated project without changing it.
+The `Created` line appears when the project is ready. Then the hello wrapper gives
+you a quick tour without changing anything.
 
 ## Create a script and see its documentation
 
@@ -24,11 +28,15 @@ sed -n '1,17p' "$demo_project/scripts/sample-task.sh"
 sed -n '/^### `sample-task.sh`$/,/^### /p' "$demo_project/README.md"
 ```
 
-The CLI finds the generated project and delegates to that project's canonical
-template. The generator prints the script path and both updated documentation
-paths. Its populated
-header includes creation/update dates, version, arguments, effects, and a runnable
-example. Open README.md in a Markdown viewer to inspect the complete reference.
+One of the reasons I started building this was simple: sometimes a script would
+run and nothing visible would happen. I wanted it to tell me what it was doing
+and whether it had actually finished.
+
+Here, the CLI finds the generated project and uses that project's own script
+template. After it creates the file, it refreshes the README and technical
+readthrough. The new header records dates, version, arguments, effects, and a
+runnable example. Open the README in a Markdown viewer to see the full component
+reference, then open `docs/technical-readthrough.md` for the function-level view.
 
 ## Run the workflow and tests
 
@@ -39,10 +47,12 @@ bash "$demo_project/tests/run.sh"
 bash "$demo_project/tests/run.sh"
 ```
 
-Both test runs should succeed to show repeatability. The bundled mutation tests work
-in disposable copies; they do not replace the original project's sample script.
+The sample script prints a status message and writes to the project log. Running
+the tests twice is a quick way to check that the same project still behaves the
+same way on another pass. Any mutation checks happen in disposable copies, not
+in the sample script you just created.
 
-## Show repeatability and refusal
+## Run it again and let it say no
 
 ```bash
 cp "$demo_project/README.md" "$demo_root/readme-before.md"
@@ -51,34 +61,40 @@ cmp "$demo_root/readme-before.md" "$demo_project/README.md"
 bash bin/bootwitch new-script sample-task scripts --project "$demo_project"
 ```
 
-`cmp` should report no difference and return 0. The final command is an intentional
-failure: it refuses the existing script. Do not show that refusal as a failed demo.
-The demo directory is retained at the path printed by the initializer.
+`cmp` stays quiet when the rebuilt README is unchanged. The final command asks
+Bootwitch to create `sample-task.sh` a second time, and Bootwitch says no. That is
+the useful result: creating a new file should not quietly replace something you
+may have already changed.
 
-## Verify the toolkit
+The demo directory stays at the path created by `mktemp`, so you can keep looking
+through it afterward.
+
+## Check Bootwitch itself
 
 ```bash
 make setup
 make check
 ```
 
-Setup explicitly downloads a pinned, checksum-verified local ShellCheck binary.
-The checks run syntax, lint, generated-project, documentation, filesystem,
-publication, and tool-setup tests. No dependencies are installed globally.
+Setup downloads a pinned local ShellCheck binary and checks its checksum before
+using it. The full check covers syntax, lint, generated projects, documentation,
+filesystem behavior, publication, and tool setup. Nothing is installed globally.
 
-## What the demo proves—and its limits
+## Keep exploring
 
-This demonstrates scaffolding, text-based documentation, repeatable tests, and
-safe refusal of an existing destination. Fault-injection tests cover additional
-failure paths. It is a developer-tooling portfolio demonstration, not a claim of
-power-loss durability or resistance to another process replacing parent paths.
-Use trusted local project folders. Old generated projects need deliberate updates
-to receive newer templates. A generated-script write failure can leave a partial
-script; project-directory publication uses a separate atomic operation.
+At this point, you have created a project, added a script from a shared convention,
+rebuilt two kinds of documentation from source comments, and run the project's
+checks. If you want to see how the pieces connect, compare the generated script
+with `README.md`, `docs/technical-readthrough.md`, and
+`.bootwitch/templates/script.sh.tpl`.
 
-## macOS Finder entry point
+Generated projects keep their own templates, so a later Bootwitch update does not
+quietly rewrite an older project's starting point. Use trusted local project
+folders when trying the wrappers; they are real scripts running on your machine.
 
-In Finder, open the generated project's `wrappers` folder and double-click
-`hello.command`. It should open Terminal and show the greeting. This workflow
-depends on local macOS file associations and download/quarantine policy; the
-Terminal commands above are the reproducible path on both platforms.
+## Prefer clicking?
+
+On macOS, open the generated project's `wrappers` folder in Finder and
+double-click `hello.command`. It should open Terminal and show the greeting.
+If macOS file associations or quarantine settings get in the way, the Terminal
+commands above work on both supported platforms.
