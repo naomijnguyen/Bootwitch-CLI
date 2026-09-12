@@ -23,11 +23,10 @@ and copies reusable modules into each generated project instead of depending on
 machine-specific shared paths. It does not perform cloud sync, privileged
 installation, background service setup, remote publishing, or automatic commits.
 
-## Quick start
-
 ## Install
 
 ### Homebrew
+
 
 The easiest installation path for macOS (and Linuxbrew) is Homebrew:
 
@@ -44,7 +43,7 @@ bootwitch list
 
 Bootwitch requires Bash and Python 3 at runtime. Git is required for default project initialization (`bootwitch init`/`summon`).
 
-For a short, reproducible walkthrough, see [the demo](docs/demo.md).
+## Quick start
 
 Run Bootwitch commands from the Bootwitch code folder, such as this repository's
 `CLI-Scaffold` directory:
@@ -52,6 +51,8 @@ Run Bootwitch commands from the Bootwitch code folder, such as this repository's
 ```sh
 cd /path/to/CLI-Scaffold
 ```
+
+For a short, reproducible walkthrough, see [the demo](docs/demo.md).
 
 From there, use the CLI to inspect the available templates and create a project:
 
