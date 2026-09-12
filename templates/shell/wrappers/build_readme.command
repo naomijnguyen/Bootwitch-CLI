@@ -38,6 +38,7 @@ fi
 
 . "$PROJECT_ROOT/modules/paths.sh"
 . "$PROJECT_ROOT/modules/header.sh"
+# shellcheck disable=SC1090
 . "$PROJECT_DOCUMENTATION_MODULE"
 
 project_set_paths "$PROJECT_ROOT"

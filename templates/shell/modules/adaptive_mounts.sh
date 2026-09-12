@@ -3,6 +3,7 @@
 # Name: adaptive_mounts
 # Type: module
 # Dates: Created: 2026-09-12
+# Version: 0.1.1
 # Purpose: Resolve project mounts adaptively, detect project language, and select the documentation provider.
 # Wrapper: wrappers/build_readme.command, wrappers/initialize_project.command
 # Arguments: Source this module; project_mount_resolve_root [PATH], project_mount_detect_language ROOT, project_mount_documentation_module ROOT [LANGUAGE].

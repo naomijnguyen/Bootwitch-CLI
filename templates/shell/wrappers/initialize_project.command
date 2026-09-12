@@ -39,6 +39,7 @@ fi
 . "$PROJECT_ROOT/modules/checkpoint.sh"
 . "$PROJECT_ROOT/modules/permissions.sh"
 . "$PROJECT_ROOT/modules/header.sh"
+# shellcheck disable=SC1090
 . "$PROJECT_DOCUMENTATION_MODULE"
 
 # Function: main
