@@ -21,14 +21,6 @@ on a private path on one laptop.
   publish the completed project.
 - Produce documentation that matches the generated files.
 
-## Non-goals
-
-- No privileged installer.
-- No daemon, login item, or background service.
-- No cloud synchronization or remote publishing.
-- No remote Git setup, authentication, or automatic commits.
-- No large application framework templates until the core scaffolder is stable.
-
 ## Runtime Shape
 
 ```text

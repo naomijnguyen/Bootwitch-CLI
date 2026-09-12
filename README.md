@@ -53,6 +53,15 @@ This fetches the new release tarball, computes SHA-256, and updates `Formula/boo
 The Homebrew formula is kept in this repository (no separate tap required), and the
 formula is refreshed automatically on each published GitHub release.
 
+For manual distribution verification, run the workflow directly:
+
+```sh
+gh workflow run release-brew-formula.yml -f tag_name=v0.2.1 -f dry_run=true
+```
+
+Use `dry_run=true` to check the bump path before committing, and `dry_run=false`
+to perform the actual release-note + formula update.
+
 ## Quick start
 
 Run Bootwitch commands from the Bootwitch code folder, such as this repository's
@@ -337,102 +346,10 @@ derive all operational paths from the discovered project root.
 
 For more detail, see `ARCHITECTURE.md` and `docs/template-authoring.md`.
 
-## Portfolio framing
+## Additional documentation
 
-Bootwitch is best presented as an AI-assisted developer-tooling project focused
-on workflow design, safe automation, documentation, and technical learning. It
-demonstrates practical engineering concepts including command dispatch,
-defensive input validation, staged filesystem writes, project-local dependency
-snapshots, shell portability, generated documentation, observability, and
-integration testing.
-
-The strongest demo is a small generated project that shows:
-
-- one command creating a complete workspace;
-- a wrapper running the project workflow;
-- checkpoints appearing after successful steps;
-- logs and reports written under project-owned folders;
-- a moved script still finding the project root;
-- tests proving overwrite protection and path handling.
-
-## Project status
-
-Bootwitch deliberately excludes mountctl, launchd agents, cloud
-synchronization, general application templates, and portfolio generation until
-the core scaffolder is stable. The current repository passes syntax checks,
-integration tests, and generated-project tests through `make check`; required
-linting and formatting checks run when their developer tools are installed.
-
-### Reliable README builds
-
-The current header format is `# Dates: Created: YYYY-MM-DD | Last Updated: YYYY-MM-DD`,
-followed by `# Version: ...`. Legacy separate Created and Last Updated fields still
-render. If both formats exist, Dates takes precedence.
-
-The builder validates marked blocks and requires a nonempty Name, matching block
-markers, and unique field names within each block. Unmarked comments are ignored.
-Required project facts are PROJECT_PURPOSE, PROJECT_TYPE, PROJECT_VERSION,
-PROJECT_STATUS, and PRIMARY_WRAPPER; missing or blank values stop the build.
-
-Files are discovered in stable bytewise path order within each component folder.
-The completed README is staged on the same filesystem and atomically replaces the
-original only after validation and rendering succeed. Its permission mode is
-preserved, and staging files are cleaned up on ordinary failures and catchable
-signals. A failed build before publication leaves the previous README intact.
-This does not lock out simultaneous human edits; avoid editing the README while
-rebuilding it. Existing symbolic-link READMEs are rejected explicitly.
-
-### Filesystem safety and test isolation
-
-Template names must be safe single directory names; symlinked template roots and
-selected template directories are rejected. Script creation rejects symlinked
-`scripts`, `src`, or `tests` destination areas. These checks assume trusted local
-project trees; they do not defend against another process actively replacing
-parent directories during a command.
-
-The initializer checks Python 3 and the native exclusive rename API before writes,
-then completes template copying, metadata, executable setup, and optional Git
-initialization in a sibling staging folder. `lib/bootwitch/publish.py` publishes
-that folder in one exclusive rename operation. There is no final project copy:
-the requested name appears with the complete prepared contents, or publication
-fails without creating a partial project there. Existing files, directories, and
-symlinks are refused, including destinations created during preparation.
-
-Preparation failures clean owned staging. Publication failures retain the
-completed hidden staging folder and print a shell-quoted retry command. Resolve
-the reported cause before running that command; a name collision still requires
-a different unused destination or resolving the existing path yourself. Never
-replace an existing project merely to make a retry succeed. Success leaves no
-staging folder. An interruption around the rename can leave either the prepared
-stage or the complete destination; inspect both paths if success was not reported.
-
-The helper uses macOS `renamex_np(RENAME_EXCL)` or Linux
-`renameat2(RENAME_NOREPLACE)` through Python's standard-library `ctypes`.
-It refuses unsupported APIs/filesystems and cross-parent recovery attempts;
-it never falls back to ordinary rename or copy. Atomic visibility is not a
-power-loss durability guarantee. These semantics assume trusted local parent
-directories and filesystems that honor the exclusive rename operation.
-
-The regression suite covers native rename, destination collisions, competing
-creators, publication failure and retry, missing capability, and interruption.
-CI provisions Python 3 and verified ShellCheck on both macOS and Ubuntu runners.
-See the repository's [CI runs](https://github.com/naomijnguyen/bootwitch/actions/workflows/ci.yml)
-for the result associated with each commit.
-
-New scripts use a no-clobber write to refuse regular files that arrive during
-rendering. A write or permission failure may leave a file requiring inspection;
-README refresh runs only after successful creation. Script publication is not an
-atomic content swap.
-
-Bundled shell mutation tests run in a disposable project copy and leave the
-original project's files and permissions intact. They choose an unused fixture
-name and refuse copied trees containing symlinks, to prevent fixture operations
-from following links outside the copy. Custom test suites remain responsible for
-their own effects.
-
-Tool setup uses the [official ShellCheck release](https://github.com/koalaman/shellcheck/releases/tag/v0.11.0). The previous npm wrapper was removed because its dependency tree included an unpatched archive-extraction advisory. No npm dependencies remain in this toolkit.
-
-Header wording is kept concise while all 13 required fields remain readable by the README builder. See [header design](docs/script-headers.md) for the current example and the tradeoffs in reducing it further.
+For safety boundaries, publication model, and test-isolation details, see
+[Filesystem safety and test isolation](docs/safety-and-test-isolation.md).
 
 ## License
 

@@ -4,14 +4,28 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag to apply (for manual test runs)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Run without committing or editing the GitHub release'
+        required: false
+        default: 'false'
+        type: string
 
 permissions:
   contents: write
 
 jobs:
   update-formula:
-    name: Bump formula for published tag
+    name: Bump formula for release tag
     runs-on: ubuntu-latest
+    env:
+      TAG_NAME: ${{ github.event_name == 'release' && github.event.release.tag_name || github.event.inputs.tag_name }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -20,17 +34,25 @@ jobs:
 
       - name: Update Homebrew formula
         id: bump
-        env:
-          TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          bash tools/bump-brew-formula.sh "${TAG_NAME}"
+          if test "${DRY_RUN}" = "true"; then
+            bash tools/bump-brew-formula.sh --dry-run "${TAG_NAME}"
+          else
+            bash tools/bump-brew-formula.sh "${TAG_NAME}"
+          fi
+          echo "formula_url=$(grep "^  url " Formula/bootwitch.rb | sed "s/^  url '//; s/'$//")" >> "$GITHUB_OUTPUT"
+          echo "formula_sha=$(grep "^  sha256 " Formula/bootwitch.rb | sed "s/^  sha256 '//; s/'$//")" >> "$GITHUB_OUTPUT"
+          echo "formula_version=$(grep "^  version " Formula/bootwitch.rb | sed "s/^  version '//; s/'$//")" >> "$GITHUB_OUTPUT"
 
       - name: Commit and push formula update
-        env:
-          TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
           if git diff --quiet -- Formula/bootwitch.rb; then
             echo "Formula already aligned with ${TAG_NAME}; nothing to do."
+            exit 0
+          fi
+
+          if test "${DRY_RUN}" = "true"; then
+            echo "Dry run requested. Skipping commit and push."
             exit 0
           fi
 
@@ -39,3 +61,45 @@ jobs:
           git add Formula/bootwitch.rb
           git commit -m "chore(release): bump Homebrew formula for ${TAG_NAME}"
           git push
+
+      - name: Append formula info to GitHub release notes
+        if: ${{ env.DRY_RUN != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORMULA_URL: ${{ steps.bump.outputs.formula_url }}
+          FORMULA_SHA: ${{ steps.bump.outputs.formula_sha }}
+        run: |
+          current_body=$(gh api repos/${{ github.repository }}/releases/tags/${TAG_NAME} --jq '.body // empty')
+          if test -z "${current_body}"; then
+            current_body=""
+          fi
+
+          if test -n "${current_body}" && echo "${current_body}" | grep -Fq "## Bootwitch Distribution"; then
+            echo "Release note distribution section already present; skipping append."
+            exit 0
+          fi
+
+          cat > /tmp/release_notes.txt <<EOF
+${current_body}
+
+## Bootwitch Distribution
+
+- Homebrew formula refreshed for tag ${TAG_NAME}: [Formula/bootwitch.rb](https://raw.githubusercontent.com/naomijnguyen/bootwitch/main/Formula/bootwitch.rb)
+- Tarball URL: ${FORMULA_URL}
+- SHA-256: \`${FORMULA_SHA}\`
+EOF
+
+          gh release edit "${TAG_NAME}" --notes-file /tmp/release_notes.txt
+
+      - name: Summarize run
+        env:
+          FORMULA_URL: ${{ steps.bump.outputs.formula_url }}
+          FORMULA_SHA: ${{ steps.bump.outputs.formula_sha }}
+          FORMULA_VERSION: ${{ steps.bump.outputs.formula_version }}
+        run: |
+          echo "## Release artifact publish summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Tag: ${TAG_NAME}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Dry-run: ${DRY_RUN}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Formula version: ${FORMULA_VERSION}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Formula URL: ${FORMULA_URL}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Formula SHA: ${FORMULA_SHA}" >> "$GITHUB_STEP_SUMMARY"
