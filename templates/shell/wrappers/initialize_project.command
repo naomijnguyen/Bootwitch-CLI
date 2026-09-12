@@ -4,7 +4,7 @@
 # Display Name: Initialize Project
 # Type: wrapper
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
-# Version: 0.2.0
+# Version: 0.2.1
 # Purpose: Prepare folders, permissions, and generated component/function documentation.
 # Module: modules/adaptive_mounts.sh, modules/paths.sh, modules/log.sh, modules/checkpoint.sh, modules/permissions.sh, modules/header.sh, modules/documentation.sh
 # Arguments: Optional --pause enables interactive checkpoints.
@@ -23,7 +23,7 @@ set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 . "$WRAPPER_DIR/../modules/adaptive_mounts.sh"
-if ! PROJECT_ROOT=$(project_mount_resolve_root "$PWD"); then
+if ! PROJECT_ROOT=$(project_mount_resolve_root "$PWD" 2>/dev/null); then
   if ! PROJECT_ROOT=$(project_mount_resolve_root "$WRAPPER_DIR"); then
     exit 1
   fi

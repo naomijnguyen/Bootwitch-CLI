@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- [2026-09-12] Added `bootwitch new-script` as a thin CLI front door to each generated shell project's convention-compliant script template and documentation refresh.
+
 - [2026-09-12] Added automated release log helper with Make target (log) and log-maintenance script.
 
 - Add release notes and release-state readme sync before tagging a new version.

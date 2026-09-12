@@ -2,16 +2,16 @@
 # @bootwitch:component
 # Name: lib/bootwitch/core.sh
 # Type: module
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.2.1
-# Purpose: Implement the Bootwitch CLI dispatcher, project generator, prompts, and diagnostics.
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
+# Version: 0.3.0
+# Purpose: Implement the Bootwitch CLI dispatcher, project and script generation, prompts, and diagnostics.
 # Arguments: Source with BOOTWITCH_HOME set; bootwitch_main receives CLI arguments.
 # Output: Command results, setup prompts, progress, and diagnostics when functions are called.
 # Returns: 0 on success; nonzero on failure. See function comments for individual statuses.
 # Dependencies: Python 3 for init/summon publication; Bash 3.2+, tr, sed, grep, find, mktemp, mkdir, cp, cat, chmod, rm, date; uname for diagnostics; Git unless --no-git.
-# Reads: VERSION when sourced; bundled templates and environment when functions run.
-# Writes: Creation functions write a staged project, metadata, executable permissions, and optional local Git repository.
-# Safety: Validates project names/options; dry-run returns before writes; cleanup targets the allocated staging directory.
+# Reads: VERSION when sourced; bundled templates, selected generated-project markers, and environment when functions run.
+# Writes: Creation functions write staged projects or delegate one script creation to a selected generated project.
+# Safety: Validates names/options and project boundaries; dry-run returns before project writes; cleanup targets allocated staging.
 # Example: Loaded by the toolkit or its tests; see function contracts above.
 # @bootwitch:end
 
@@ -30,6 +30,7 @@ bootwitch_usage() {
 Usage:
   bootwitch init NAME [--template base|shell] [--root PATH] [--no-git] [--dry-run]
   bootwitch summon
+  bootwitch new-script NAME [scripts|src|tests] [--project PATH]
   bootwitch list
   bootwitch templates
   bootwitch wizard
@@ -401,6 +402,95 @@ EOF
   printf '%sCreated%s %s using template %s\n' "$(bootwitch_color green)" "$(bootwitch_color reset)" "$destination" "$template_name"
 }
 
+# Function: bootwitch_find_project_root
+# Purpose: Find the nearest generated Bootwitch project from a directory.
+# Arguments: Optional starting directory; defaults to the current working directory.
+# Output: Prints the absolute physical project root.
+# Returns: 0 when a regular marker is found; 1 when the path or project is invalid.
+# Safety: Reads ancestor markers only, rejects symlink markers, and stops at the filesystem root.
+bootwitch_find_project_root() {
+  local start_path
+  local current_dir
+
+  start_path=$(bootwitch_expand_path "${1:-$PWD}")
+  current_dir=$(CDPATH='' cd -P -- "$start_path" 2>/dev/null && pwd) || {
+    bootwitch_error "cannot inspect project path: $start_path"
+    return 1
+  }
+
+  while :; do
+    if test -d "$current_dir/.bootwitch" &&
+        test ! -L "$current_dir/.bootwitch" &&
+        test -f "$current_dir/.bootwitch/project.conf" &&
+        test ! -L "$current_dir/.bootwitch/project.conf"; then
+      printf '%s\n' "$current_dir"
+      return 0
+    fi
+
+    test "$current_dir" != / || break
+    current_dir=$(dirname -- "$current_dir")
+  done
+
+  bootwitch_error "no generated project found above: $start_path"
+  return 1
+}
+
+# Function: bootwitch_new_script
+# Command: bootwitch new-script NAME [scripts|src|tests] [--project PATH]
+# Purpose: Create one convention-compliant script through a generated project's own template.
+# Arguments: Script name, optional destination area, and optional project path.
+# Output: The project-local generator's creation and documentation-refresh messages.
+# Returns: The delegated generator status, or 2 for invalid CLI arguments.
+# Safety: Resolves a regular project marker and fixed non-symlink generator; delegates from that root only for this explicit command.
+bootwitch_new_script() {
+  local script_name
+  local script_area=scripts
+  local project_start=$PWD
+  local project_root
+  local generator
+
+  test "$#" -ge 1 || {
+    bootwitch_error 'new-script requires a script name'
+    return 2
+  }
+  script_name=$1
+  shift
+
+  case "${1:-}" in
+    scripts | src | tests)
+      script_area=$1
+      shift
+      ;;
+  esac
+
+  case "$#" in
+    0) ;;
+    2)
+      test "$1" = --project && test -n "$2" || {
+        bootwitch_error 'usage: bootwitch new-script NAME [scripts|src|tests] [--project PATH]'
+        return 2
+      }
+      project_start=$2
+      ;;
+    *)
+      bootwitch_error 'usage: bootwitch new-script NAME [scripts|src|tests] [--project PATH]'
+      return 2
+      ;;
+  esac
+
+  project_root=$(bootwitch_find_project_root "$project_start") || return 1
+  generator=$project_root/scripts/new-script.sh
+  if test ! -f "$generator" || test -L "$generator"; then
+    bootwitch_error "project does not provide a usable shell script generator: $project_root"
+    return 1
+  fi
+
+  (
+    cd "$project_root" || exit 1
+    /bin/bash "$generator" "$script_name" "$script_area"
+  )
+}
+
 # Function: bootwitch_list
 # Command: bootwitch list
 # Purpose: Show which project templates this release supports.
@@ -519,6 +609,8 @@ bootwitch_main() {
     summon) bootwitch_summon "$@" ;;
     # Mutating, bounded scaffolding command; see bootwitch_init safety contract.
     init) bootwitch_init "$@" ;;
+    # Explicitly delegates to a selected generated project's bounded generator.
+    new-script) bootwitch_new_script "$@" ;;
     # Read-only template inventory.
     list) bootwitch_list ;;
     # Read-only template details.

@@ -19,12 +19,14 @@ The greeting introduces the generated project without changing it.
 ## Create a script and see its documentation
 
 ```bash
-bash "$demo_project/scripts/new-script.sh" sample-task scripts
+bash bin/bootwitch new-script sample-task scripts --project "$demo_project"
 sed -n '1,17p' "$demo_project/scripts/sample-task.sh"
 sed -n '/^### `sample-task.sh`$/,/^### /p' "$demo_project/README.md"
 ```
 
-The generator prints the script path and an updated README path. Its populated
+The CLI finds the generated project and delegates to that project's canonical
+template. The generator prints the script path and both updated documentation
+paths. Its populated
 header includes creation/update dates, version, arguments, effects, and a runnable
 example. Open README.md in a Markdown viewer to inspect the complete reference.
 
@@ -46,7 +48,7 @@ in disposable copies; they do not replace the original project's sample script.
 cp "$demo_project/README.md" "$demo_root/readme-before.md"
 bash "$demo_project/wrappers/build_readme.command"
 cmp "$demo_root/readme-before.md" "$demo_project/README.md"
-bash "$demo_project/scripts/new-script.sh" sample-task scripts
+bash bin/bootwitch new-script sample-task scripts --project "$demo_project"
 ```
 
 `cmp` should report no difference and return 0. The final command is an intentional

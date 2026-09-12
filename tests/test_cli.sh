@@ -2,15 +2,15 @@
 # @bootwitch:component
 # Name: tests/test_cli.sh
 # Type: test
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.3
-# Purpose: Verify CLI inspection, guided creation, dry-run, generated projects, and destination refusal.
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
+# Version: 0.2.1
+# Purpose: Verify CLI inspection, project/script creation, dry-run, generated projects, and destination refusal.
 # Arguments: None.
 # Output: CLI integration success message; failures on stderr.
 # Returns: 0 on success; nonzero on failure.
-# Dependencies: Bash 3.2+, dirname, mktemp, rm, grep, cmp, Git, and CLI/generated-test dependencies.
+# Dependencies: Bash 3.2+, dirname, mktemp, mkdir, rm, grep, cmp, Git, and CLI/generated-test dependencies.
 # Reads: bin/bootwitch, tests/helpers.sh, bundled templates, and generated fixtures.
-# Writes: Temporary projects including local Git repositories; removes its allocated test directory on exit.
+# Writes: Temporary projects, generated scripts/docs, and local Git repositories; removes its allocated test directory on exit.
 # Safety: Uses a unique temporary root, including paths with spaces; no remote Git operations.
 # Example: bash tests/test_cli.sh
 # @bootwitch:end
@@ -75,6 +75,27 @@ assert_exists "$shell_project/.git"
 assert_exists "$shell_project/modules/log.sh"
 assert_exists "$shell_project/wrappers/run.command"
 /bin/bash "$shell_project/tests/run.sh" >/dev/null
+
+script_error=$TEST_TMP/new-script-error
+script_output=$(/bin/bash "$CLI" new-script cli-probe src --project "$shell_project" 2>"$script_error")
+test ! -s "$script_error" || test_fail 'explicit project script creation emitted an unexpected warning'
+assert_contains "$script_output" 'Created src/cli-probe.sh'
+assert_contains "$script_output" 'README updated:'
+assert_contains "$script_output" 'Technical readthrough updated:'
+assert_exists "$shell_project/src/cli-probe.sh"
+assert_contains "$(cat "$shell_project/README.md")" '### `cli-probe.sh`'
+assert_contains "$(cat "$shell_project/docs/technical-readthrough.md")" '### `src/cli-probe.sh`'
+/bin/bash "$shell_project/src/cli-probe.sh" >/dev/null
+
+nested_dir=$shell_project/src/'nested folder'
+mkdir -p "$nested_dir"
+nested_output=$(cd "$nested_dir" && /bin/bash "$CLI" new-script nested-probe tests)
+assert_contains "$nested_output" 'Created tests/nested-probe.sh'
+assert_exists "$shell_project/tests/nested-probe.sh"
+
+if /bin/bash "$CLI" new-script unsupported --project "$base_project" >/dev/null 2>&1; then
+  test_fail 'base project unexpectedly provided the shell script generator'
+fi
 
 if /bin/bash "$CLI" init shell-demo --template shell --root "$space_root" >/dev/null 2>&1; then
   test_fail 'existing destination was overwritten'

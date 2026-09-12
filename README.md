@@ -192,6 +192,18 @@ Inside a generated shell project, create consistently formatted scripts with:
 ./scripts/new-script.sh parse-results src
 ```
 
+For local CLI testing, the toolkit can find that generated project and delegate
+to its own template:
+
+```sh
+./bin/bootwitch new-script backup-data scripts --project /path/to/generated-project
+```
+
+When `bootwitch` is installed or invoked by absolute path from somewhere inside
+the generated project, omit `--project`; Bootwitch searches upward for the nearest
+regular `.bootwitch/project.conf`. The project-local generator remains authoritative,
+so the CLI does not replace an older project's template with a newer toolkit copy.
+
 Generated scripts include a metadata header, strict Bash settings, project-root
 discovery, the standard logging helper, and a `main` function.
 

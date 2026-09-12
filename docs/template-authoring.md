@@ -41,6 +41,12 @@ Shell projects include `.bootwitch/templates/script.sh.tpl` and the safe
 they share the same metadata header, strict mode, path resolution, `main` entry
 point, logging helper, and instructional annotation format.
 
+The toolkit-level `bootwitch new-script` command is a thin front door to this
+project-local generator. It may locate the nearest generated project or accept
+`--project PATH`, but it must not render from the toolkit's current template
+directly into an older project. This preserves independently versioned projects
+and gives local CLI tests the same behavior as the generated wrapper.
+
 Document functions with the headings that help a reader predict behavior:
 `Function`, `Purpose`, `Arguments`, `Output`, `Returns`, `How it works`, and
 `Safety`. Include only useful headings; small helpers do not need empty sections.
