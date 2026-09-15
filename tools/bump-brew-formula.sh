@@ -33,7 +33,7 @@ if test -z "${target_tag}"; then
   exit 1
 fi
 
-tarball_url="https://github.com/naomijnguyen/bootwitch/archive/refs/tags/${target_tag}.tar.gz"
+tarball_url="https://github.com/naomijnguyen/Bootwitch-CLI/archive/refs/tags/${target_tag}.tar.gz"
 if ! curl -fsI "$tarball_url" >/dev/null 2>&1; then
   echo "error: release tarball not available: ${tarball_url}" >&2
   exit 1

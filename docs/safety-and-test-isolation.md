@@ -37,7 +37,7 @@ The regression suite covers native rename, destination collisions, competing
 creators, publication failure and retry, missing capability, and interruption.
 CI provisions Python 3 and verified ShellCheck on both macOS and Ubuntu runners.
 See the repository's CI runs:
-<https://github.com/naomijnguyen/bootwitch/actions/workflows/ci.yml>.
+<https://github.com/naomijnguyen/Bootwitch-CLI/actions/workflows/ci.yml>.
 
 New scripts use a no-clobber write to refuse regular files that arrive during
 rendering. A write or permission failure may leave a file requiring inspection;
@@ -55,3 +55,9 @@ archive-extraction advisory. No npm dependencies remain in this toolkit.
 
 Custom test suites remain responsible for their own side effects.
 
+
+## Trusted Project Boundary
+
+Run project-local Bootwitch commands only in projects you created or otherwise
+trust. Bootwitch validates paths and file shapes, but it does not authenticate
+project source code.

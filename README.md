@@ -30,7 +30,7 @@ installation, background service setup, remote publishing, or automatic commits.
 The easiest installation path for macOS (and Linuxbrew) is Homebrew:
 
 ```sh
-brew install --formula https://raw.githubusercontent.com/naomijnguyen/bootwitch/main/Formula/bootwitch.rb
+brew install --formula https://raw.githubusercontent.com/naomijnguyen/Bootwitch-CLI/main/Formula/bootwitch.rb
 ```
 
 To confirm installation:
@@ -42,25 +42,25 @@ bootwitch list
 
 Bootwitch requires Bash and Python 3 at runtime. Git is required for default project initialization (`bootwitch init`/`summon`).
 
-For a release package update workflow, run:
+To verify a tagged package update locally, run:
 
 ```sh
-bash tools/bump-brew-formula.sh v0.2.1
+bash tools/bump-brew-formula.sh --dry-run v0.2.1
 ```
 
-This fetches the new release tarball, computes SHA-256, and updates `Formula/bootwitch.rb` in one step.
+This fetches the tagged archive, computes its SHA-256, and previews the formula
+values without modifying the repository. Remove `--dry-run` only in a reviewed
+local branch when deliberately preparing a formula update.
 
-The Homebrew formula is kept in this repository (no separate tap required), and the
-formula is refreshed automatically on each published GitHub release.
-
-For manual distribution verification, run the workflow directly:
+The Homebrew formula stays in this repository, so no separate tap is required
+for the direct-formula installation shown above. The GitHub verification workflow
+is manual and read-only:
 
 ```sh
-gh workflow run release-brew-formula.yml -f tag_name=v0.2.1 -f dry_run=true
+gh workflow run release-brew-formula.yml -f tag_name=v0.2.1
 ```
 
-Use `dry_run=true` to check the bump path before committing, and `dry_run=false`
-to perform the actual release-note + formula update.
+It verifies the tagged archive path and never commits, pushes, or edits a release.
 
 ## Release notes
 
@@ -80,10 +80,10 @@ adds the note to the matching `docs/release-notes/v<version>.md`. Use
 ## Quick start
 
 Run Bootwitch commands from the Bootwitch code folder, such as this repository's
-`CLI-Scaffold` directory:
+`Bootwitch-CLI` directory:
 
 ```sh
-cd /path/to/CLI-Scaffold
+cd /path/to/Bootwitch-CLI
 ```
 
 For a short, reproducible walkthrough, see [the demo](docs/demo.md).
@@ -105,7 +105,7 @@ to choose another parent directory, `--no-git` to skip Git initialization, or
 The Bootwitch code folder and the generated project folder are separate:
 
 ```text
-/path/to/CLI-Scaffold/             Bootwitch itself; run ./bin/bootwitch here.
+/path/to/Bootwitch-CLI/             Bootwitch itself; run ./bin/bootwitch here.
 ~/Developer/Projects/my-project/   Generated project; run wrappers here.
 ```
 
