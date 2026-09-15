@@ -30,7 +30,7 @@ installation, background service setup, remote publishing, or automatic commits.
 The easiest installation path for macOS (and Linuxbrew) is Homebrew:
 
 ```sh
-brew install --formula https://raw.githubusercontent.com/naomijnguyen/Bootwitch-CLI/main/Formula/bootwitch.rb
+brew install naomijnguyen/bootwitch/bootwitch
 ```
 
 To confirm installation:
@@ -52,9 +52,9 @@ This fetches the tagged archive, computes its SHA-256, and previews the formula
 values without modifying the repository. Remove `--dry-run` only in a reviewed
 local branch when deliberately preparing a formula update.
 
-The Homebrew formula stays in this repository, so no separate tap is required
-for the direct-formula installation shown above. The GitHub verification workflow
-is manual and read-only:
+The release formula is mirrored in the public `naomijnguyen/homebrew-bootwitch`
+tap for a one-command install. The copy in this repository stays reviewable
+alongside the source. The GitHub verification workflow is manual and read-only:
 
 ```sh
 gh workflow run release-brew-formula.yml -f tag_name=v0.2.1
