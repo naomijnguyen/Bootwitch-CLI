@@ -1,9 +1,9 @@
 class Bootwitch < Formula
   desc "Portable project scaffolder for macOS and Linux"
   homepage "https://github.com/naomijnguyen/Bootwitch-CLI"
-  url "https://github.com/naomijnguyen/Bootwitch-CLI/archive/refs/tags/v0.2.1.tar.gz"
-  sha256 "7c148de0cf80991d688f8749181c1fa534e82ae3d993c6d1c9ad5dfbbc47de3e"
-  version "0.2.1"
+  url "https://github.com/naomijnguyen/Bootwitch-CLI/archive/refs/tags/v0.3.0.tar.gz"
+  sha256 "4b14c7cad72afa3bb39f483c1c0e37b3cfd6a87d1234ef943990507a0893cf26"
+  version "0.3.0"
   license "MIT"
 
   depends_on "python@3.14"
