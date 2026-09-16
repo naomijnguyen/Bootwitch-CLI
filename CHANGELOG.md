@@ -9,6 +9,8 @@
 - Changed the default destination for `bootwitch init` and `bootwitch summon` to `$HOME/Bootwitch/Projects`, while preserving explicit `--root` and one-time `--workspace` overrides.
 - Added a workspace guide and updated CLI help, README, architecture notes, safety documentation, and the reproducible demo to distinguish workspace setup from project initialization.
 - Added regression coverage for default path resolution, setup dry runs, idempotent setup, empty workspace rejection, and running commands independently of the current working directory.
+- Hardened default path resolution against empty, unset, or non-absolute `HOME` values and added direct file/symbolic-link setup refusal coverage.
+- Made formula dry runs preserve the tracked formula and added regression coverage that keeps the GitHub verification workflow read-only.
 - Added `bootwitch new-script` as a thin CLI front door to each generated shell project's convention-compliant script template and documentation refresh.
 - Added the bounded `make log` release-maintenance helper for changelog and release-note updates.
 - Fixed adaptive mount metadata and documented dynamic-source lint handling so generated projects remain `make check` clean.

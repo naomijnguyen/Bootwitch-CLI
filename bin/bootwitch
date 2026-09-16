@@ -3,7 +3,7 @@
 # Name: bin/bootwitch
 # Type: script
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-16
-# Version: 0.2.1
+# Version: 0.3.0
 # Purpose: Dispatch Bootwitch workspace setup, project/script creation, template listing, help, and environment checks.
 # Arguments: COMMAND [OPTIONS]; no command displays help.
 # Output: Command results on stdout; progress and errors on stderr.

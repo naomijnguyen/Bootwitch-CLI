@@ -3,7 +3,7 @@
 # Name: lib/bootwitch/core.sh
 # Type: module
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-16
-# Version: 0.4.1
+# Version: 0.4.2
 # Purpose: Implement the Bootwitch CLI dispatcher, workspace setup, project and script generation, prompts, and diagnostics.
 # Arguments: Source with BOOTWITCH_HOME set; bootwitch_main receives CLI arguments.
 # Output: Command results, setup prompts, progress, and diagnostics when functions are called.
@@ -102,7 +102,13 @@ bootwitch_expand_path() {
 # Output: Prints $HOME/Bootwitch.
 # Safety: Derives the path from HOME and performs no filesystem operations.
 bootwitch_default_workspace() {
-  printf '%s/Bootwitch\n' "$HOME"
+  local user_home=${HOME:-}
+  case "$user_home" in
+    /*) ;;
+    '') bootwitch_error 'HOME must be set before using the default Bootwitch workspace'; return 1 ;;
+    *) bootwitch_error 'HOME must be an absolute path before using the default Bootwitch workspace'; return 1 ;;
+  esac
+  printf '%s/Bootwitch\n' "$user_home"
 }
 
 # Function: bootwitch_default_projects_root
@@ -111,7 +117,9 @@ bootwitch_default_workspace() {
 # Output: Prints $HOME/Bootwitch/Projects.
 # Safety: Derives the path from HOME and performs no filesystem operations.
 bootwitch_default_projects_root() {
-  printf '%s/Projects\n' "$(bootwitch_default_workspace)"
+  local default_workspace
+  default_workspace=$(bootwitch_default_workspace) || return 1
+  printf '%s/Projects\n' "$default_workspace"
 }
 
 # Function: bootwitch_setup
@@ -123,7 +131,7 @@ bootwitch_default_projects_root() {
 # Safety: Creates only the selected workspace plus Projects and Documents;
 # refuses files and symbolic links at the selected directory paths and never moves content.
 bootwitch_setup() {
-  workspace=$(bootwitch_default_workspace)
+  workspace=$(bootwitch_default_workspace) || return 1
   dry_run=0
 
   while test "$#" -gt 0; do
@@ -305,7 +313,8 @@ bootwitch_summon() {
 
   project_name=$(bootwitch_prompt 'Project name' '') || return 1
   template_choice=$(bootwitch_prompt 'Template' 'shell') || return 1
-  project_root=$(bootwitch_prompt 'Project root' "$(bootwitch_default_projects_root)") || return 1
+  default_projects_root=$(bootwitch_default_projects_root) || return 1
+  project_root=$(bootwitch_prompt 'Project root' "$default_projects_root") || return 1
   git_choice=$(bootwitch_prompt 'Initialize Git? Y/n' 'Y') || return 1
 
   case "$git_choice" in
@@ -343,7 +352,7 @@ bootwitch_init() {
   project_name=$1
   shift
   template_name=base
-  project_root=$(bootwitch_default_projects_root)
+  project_root=$(bootwitch_default_projects_root) || return 1
   initialize_git=1
   dry_run=0
 
@@ -663,8 +672,10 @@ bootwitch_doctor() {
     fi
   done
 
-  bootwitch_doctor_item 'Workspace' info "$(bootwitch_default_workspace)"
-  bootwitch_doctor_item 'Default root' info "$(bootwitch_default_projects_root)"
+  default_workspace=$(bootwitch_default_workspace) || return 1
+  default_projects_root=$(bootwitch_default_projects_root) || return 1
+  bootwitch_doctor_item 'Workspace' info "$default_workspace"
+  bootwitch_doctor_item 'Default root' info "$default_projects_root"
 }
 
 # Function: bootwitch_main

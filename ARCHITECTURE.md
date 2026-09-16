@@ -128,7 +128,7 @@ BOOTWITCH_SCHEMA=1
 PROJECT_NAME=my-project
 TEMPLATE=shell
 CREATED_DATE=2026-09-08
-BOOTWITCH_VERSION=0.2.0-dev
+BOOTWITCH_VERSION=0.3.0
 ```
 
 This file is data, not executable configuration. `lib/bootwitch/config.sh`

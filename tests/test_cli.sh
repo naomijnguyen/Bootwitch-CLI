@@ -3,7 +3,7 @@
 # Name: tests/test_cli.sh
 # Type: test
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-16
-# Version: 0.3.1
+# Version: 0.3.2
 # Purpose: Verify workspace setup, CLI inspection, project/script creation, dry-run, generated projects, and destination refusal.
 # Arguments: None.
 # Output: CLI integration success message; failures on stderr.
@@ -61,6 +61,30 @@ assert_not_exists "$workspace_home/Bootwitch"
 
 if HOME="$workspace_home" /bin/bash "$CLI" setup --workspace '' --dry-run >/dev/null 2>&1; then
   test_fail 'empty workspace path was accepted'
+fi
+
+if HOME='' /bin/bash "$CLI" setup --dry-run >/dev/null 2>&1; then
+  test_fail 'empty HOME was accepted for workspace setup'
+fi
+if HOME='' /bin/bash "$CLI" init unsafe-home --dry-run >/dev/null 2>&1; then
+  test_fail 'empty HOME was accepted for default project creation'
+fi
+if env -u HOME /bin/bash "$CLI" setup --dry-run >/dev/null 2>&1; then
+  test_fail 'unset HOME was accepted for workspace setup'
+fi
+
+workspace_file=$TEST_TMP/workspace-file
+: > "$workspace_file"
+if /bin/bash "$CLI" setup --workspace "$workspace_file" >/dev/null 2>&1; then
+  test_fail 'regular file was accepted as a workspace directory'
+fi
+
+workspace_target=$TEST_TMP/workspace-target
+workspace_link=$TEST_TMP/workspace-link
+mkdir "$workspace_target"
+ln -s "$workspace_target" "$workspace_link"
+if /bin/bash "$CLI" setup --workspace "$workspace_link" >/dev/null 2>&1; then
+  test_fail 'symbolic link was accepted as a workspace directory'
 fi
 
 setup_output=$(HOME="$workspace_home" /bin/bash "$CLI" setup)
