@@ -1,5 +1,12 @@
 # Filesystem safety and test isolation
 
+`bootwitch setup` creates only the selected workspace directory plus its
+`Projects` and `Documents` children. It refuses an empty workspace value and
+refuses existing files or symbolic links at those three selected paths. Setup
+is idempotent for regular directories and never moves or adopts project data.
+Like the other local filesystem checks described below, this is not a defense
+against an actively hostile process replacing ancestor paths during execution.
+
 Template names must be safe single directory names; symlinked template roots and
 selected template directories are rejected.
 Script creation rejects symlinked `scripts`, `src`, or `tests` destination

@@ -57,6 +57,7 @@ installed executable path and sources the core library from that trusted
 location. The CLI then dispatches only known command names:
 
 - `init`
+- `setup`
 - `summon`
 - `list`
 - `templates`
@@ -78,6 +79,10 @@ does not persistently reconfigure later commands.
 `bootwitch init NAME` creates a project through a staged generation pipeline.
 Its default parent is `$HOME/Bootwitch/Projects`; callers can still select a
 different parent explicitly with `--root`.
+
+Neither command depends on the caller's current working directory. The entry
+point resolves the installed toolkit from its own path, while workspace and
+project defaults derive from the current user's `$HOME`.
 
 1. Parse only supported options: `--template`, `--root`, `--no-git`, and
    `--dry-run`.

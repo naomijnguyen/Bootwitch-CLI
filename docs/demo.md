@@ -8,17 +8,35 @@ Run these commands in Bash from the cloned Bootwitch repository. Project creatio
 needs Bash 3.2+ and Python 3 on macOS or Linux. Once the shell project exists, it
 runs with Bash and standard command-line tools.
 
-## Create a disposable project
+## Prepare a disposable Bootwitch workspace
 
 ```bash
-demo_root=$(mktemp -d "${TMPDIR:-/tmp}/bootwitch-demo.XXXXXX")
-bash bin/bootwitch init demo --template shell --root "$demo_root" --no-git
-demo_project="$demo_root/demo"
+demo_home=$(mktemp -d "${TMPDIR:-/tmp}/bootwitch-demo.XXXXXX")
+HOME="$demo_home" bash bin/bootwitch setup --dry-run
+HOME="$demo_home" bash bin/bootwitch setup
+```
+
+This uses a disposable `HOME` so the demo exercises the real default convention
+without writing to your actual home directory. Setup creates only:
+
+```text
+$HOME/Bootwitch/
+├── Documents/
+└── Projects/
+```
+
+## Create a disposable project from anywhere
+
+```bash
+(cd / && HOME="$demo_home" bash "$OLDPWD/bin/bootwitch" init demo --template shell --no-git)
+demo_project="$demo_home/Bootwitch/Projects/demo"
 bash "$demo_project/wrappers/hello.command"
 ```
 
-The `Created` line appears when the project is ready. Then the hello wrapper gives
-you a quick tour without changing anything.
+The subshell changes to `/` before invoking Bootwitch, proving that the current
+working directory does not choose the destination. The `Created` line appears
+when the project is ready. Then the hello wrapper gives you a quick tour without
+changing anything.
 
 ## Create a script and see its documentation
 
@@ -55,9 +73,9 @@ in the sample script you just created.
 ## Run it again and let it say no
 
 ```bash
-cp "$demo_project/README.md" "$demo_root/readme-before.md"
+cp "$demo_project/README.md" "$demo_home/readme-before.md"
 bash "$demo_project/wrappers/build_readme.command"
-cmp "$demo_root/readme-before.md" "$demo_project/README.md"
+cmp "$demo_home/readme-before.md" "$demo_project/README.md"
 bash bin/bootwitch new-script sample-task scripts --project "$demo_project"
 ```
 
@@ -66,7 +84,7 @@ Bootwitch to create `sample-task.sh` a second time, and Bootwitch says no. That 
 the useful result: creating a new file should not quietly replace something you
 may have already changed.
 
-The demo directory stays at the path created by `mktemp`, so you can keep looking
+The demo workspace stays at the path created by `mktemp`, so you can keep looking
 through it afterward.
 
 ## Check Bootwitch itself

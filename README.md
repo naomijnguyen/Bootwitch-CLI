@@ -87,6 +87,8 @@ cd /path/to/Bootwitch-CLI
 ```
 
 For a short, reproducible walkthrough, see [the demo](docs/demo.md).
+For the workspace-versus-project model, existing-project boundaries, and path
+overrides, see the [workspace guide](docs/workspace-guide.md).
 
 From there, use the CLI to inspect the available templates and create a project:
 
@@ -110,6 +112,8 @@ defaults; pass `--root` when creating projects outside `~/Bootwitch/Projects`.
 Bootwitch creates new projects under `~/Bootwitch/Projects` by default. Use
 `--root` to choose another parent directory, `--no-git` to skip Git
 initialization, or `--dry-run` to preview an operation without writing anything.
+Once Bootwitch is installed, both `setup` and `init` can be invoked from any
+working directory; the current directory does not change their default paths.
 
 The Bootwitch code folder and the generated project folder are separate:
 

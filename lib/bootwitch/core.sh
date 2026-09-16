@@ -3,7 +3,7 @@
 # Name: lib/bootwitch/core.sh
 # Type: module
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-16
-# Version: 0.4.0
+# Version: 0.4.1
 # Purpose: Implement the Bootwitch CLI dispatcher, workspace setup, project and script generation, prompts, and diagnostics.
 # Arguments: Source with BOOTWITCH_HOME set; bootwitch_main receives CLI arguments.
 # Output: Command results, setup prompts, progress, and diagnostics when functions are called.
@@ -37,6 +37,11 @@ Usage:
   bootwitch wizard
   bootwitch doctor
   bootwitch help
+
+Workspace and projects:
+  setup prepares $HOME/Bootwitch with Projects and Documents directories.
+  init creates one project under $HOME/Bootwitch/Projects by default.
+  Both commands can be run from any working directory.
 EOF
 }
 

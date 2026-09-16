@@ -3,7 +3,7 @@
 # Name: tests/test_cli.sh
 # Type: test
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-16
-# Version: 0.3.0
+# Version: 0.3.1
 # Purpose: Verify workspace setup, CLI inspection, project/script creation, dry-run, generated projects, and destination refusal.
 # Arguments: None.
 # Output: CLI integration success message; failures on stderr.
@@ -27,6 +27,11 @@ TEST_TMP=$(mktemp -d "${TMPDIR:-/tmp}/bootwitch-tests.XXXXXX")
 trap 'rm -rf "$TEST_TMP"' EXIT HUP INT TERM
 
 CLI=$PROJECT_ROOT/bin/bootwitch
+
+help_output=$(/bin/bash "$CLI" help)
+assert_contains "$help_output" 'setup prepares $HOME/Bootwitch'
+assert_contains "$help_output" 'init creates one project under $HOME/Bootwitch/Projects'
+assert_contains "$help_output" 'Both commands can be run from any working directory.'
 
 list_output=$(/bin/bash "$CLI" list)
 assert_contains "$list_output" 'base'
