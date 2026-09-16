@@ -1,6 +1,6 @@
 # Bootwitch
 
-Current version: `v0.2.1`
+Current version: `v0.3.0`
 
 Bootwitch is a small, portable project scaffolder for macOS and Linux. It turns
 a project idea into a consistent local workspace with predictable folders,
@@ -45,7 +45,7 @@ Bootwitch requires Bash and Python 3 at runtime. Git is required for default pro
 To verify a tagged package update locally, run:
 
 ```sh
-bash tools/bump-brew-formula.sh --dry-run v0.2.1
+bash tools/bump-brew-formula.sh --dry-run v0.3.0
 ```
 
 This fetches the tagged archive, computes its SHA-256, and previews the formula
@@ -57,7 +57,7 @@ tap for a one-command install. The copy in this repository stays reviewable
 alongside the source. The GitHub verification workflow is manual and read-only:
 
 ```sh
-gh workflow run release-brew-formula.yml -f tag_name=v0.2.1
+gh workflow run release-brew-formula.yml -f tag_name=v0.3.0
 ```
 
 It verifies the tagged archive path and never commits, pushes, or edits a release.
@@ -65,7 +65,7 @@ It verifies the tagged archive path and never commits, pushes, or edits a releas
 ## Release notes
 
 Recent changes are tracked in [CHANGELOG.md](CHANGELOG.md). For curated release
-notes, see [`docs/release-notes/v0.2.1.md`](docs/release-notes/v0.2.1.md).
+notes, see [`docs/release-notes/v0.3.0.md`](docs/release-notes/v0.3.0.md).
 
 To keep maintenance notes consistent, there is now a small release-log helper:
 

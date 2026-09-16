@@ -2,18 +2,16 @@
 
 ## Unreleased
 
-- [2026-09-14] Fixed the Homebrew distribution path with a verified release checksum and a dedicated public tap.
+## v0.3.0 - 2026-09-16
 
-- [2026-09-16] Added the `$HOME/Bootwitch` workspace convention, idempotent `bootwitch setup`, and a default `$HOME/Bootwitch/Projects` destination for new projects.
-
-- [2026-09-16] Added a workspace guide and updated CLI help, README, architecture notes, and the reproducible demo to distinguish workspace setup from project initialization.
-
-- [2026-09-12] Added `bootwitch new-script` as a thin CLI front door to each generated shell project's convention-compliant script template and documentation refresh.
-
-- [2026-09-12] Added automated release log helper with Make target (log) and log-maintenance script.
-
-- Add release notes and release-state readme sync before tagging a new version.
-- Post-release fix: cleanly declare adaptive mount metadata and suppress documented dynamic-source lint warnings in shell template wrappers so generated projects stay `make check` clean.
+- Fixed the Homebrew distribution path with a verified release checksum and the dedicated public `naomijnguyen/homebrew-bootwitch` tap.
+- Added the `$HOME/Bootwitch` user workspace convention and idempotent `bootwitch setup`, which prepares `Projects/` and `Documents/` without moving existing content.
+- Changed the default destination for `bootwitch init` and `bootwitch summon` to `$HOME/Bootwitch/Projects`, while preserving explicit `--root` and one-time `--workspace` overrides.
+- Added a workspace guide and updated CLI help, README, architecture notes, safety documentation, and the reproducible demo to distinguish workspace setup from project initialization.
+- Added regression coverage for default path resolution, setup dry runs, idempotent setup, empty workspace rejection, and running commands independently of the current working directory.
+- Added `bootwitch new-script` as a thin CLI front door to each generated shell project's convention-compliant script template and documentation refresh.
+- Added the bounded `make log` release-maintenance helper for changelog and release-note updates.
+- Fixed adaptive mount metadata and documented dynamic-source lint handling so generated projects remain `make check` clean.
 
 ## v0.2.1 - 2026-09-12
 
