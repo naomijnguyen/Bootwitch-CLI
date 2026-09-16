@@ -2,9 +2,9 @@
 # @bootwitch:component
 # Name: lib/bootwitch/core.sh
 # Type: module
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
-# Version: 0.3.0
-# Purpose: Implement the Bootwitch CLI dispatcher, project and script generation, prompts, and diagnostics.
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-16
+# Version: 0.4.0
+# Purpose: Implement the Bootwitch CLI dispatcher, workspace setup, project and script generation, prompts, and diagnostics.
 # Arguments: Source with BOOTWITCH_HOME set; bootwitch_main receives CLI arguments.
 # Output: Command results, setup prompts, progress, and diagnostics when functions are called.
 # Returns: 0 on success; nonzero on failure. See function comments for individual statuses.
@@ -28,6 +28,7 @@ BOOTWITCH_VERSION=$(tr -d '[:space:]' < "$BOOTWITCH_HOME/VERSION")
 bootwitch_usage() {
   cat <<'EOF'
 Usage:
+  bootwitch setup [--workspace PATH] [--dry-run]
   bootwitch init NAME [--template base|shell] [--root PATH] [--no-git] [--dry-run]
   bootwitch summon
   bootwitch new-script NAME [scripts|src|tests] [--project PATH]
@@ -88,6 +89,74 @@ bootwitch_expand_path() {
     \~/*) printf '%s/%s\n' "$HOME" "${path_value#'~/'}" ;;
     *) printf '%s\n' "$path_value" ;;
   esac
+}
+
+# Function: bootwitch_default_workspace
+# Purpose: Return the conventional Bootwitch workspace for the current user.
+# Arguments: None.
+# Output: Prints $HOME/Bootwitch.
+# Safety: Derives the path from HOME and performs no filesystem operations.
+bootwitch_default_workspace() {
+  printf '%s/Bootwitch\n' "$HOME"
+}
+
+# Function: bootwitch_default_projects_root
+# Purpose: Return the conventional parent directory for Bootwitch projects.
+# Arguments: None.
+# Output: Prints $HOME/Bootwitch/Projects.
+# Safety: Derives the path from HOME and performs no filesystem operations.
+bootwitch_default_projects_root() {
+  printf '%s/Projects\n' "$(bootwitch_default_workspace)"
+}
+
+# Function: bootwitch_setup
+# Command: bootwitch setup [--workspace PATH] [--dry-run]
+# Purpose: Prepare the minimal user-owned Bootwitch workspace convention.
+# Arguments: Optional workspace override and dry-run flag.
+# Output: Prints the directories that would be prepared or the ready workspace.
+# Returns: 0 on success, 1 for an unsafe path, or 2 for invalid usage.
+# Safety: Creates only the selected workspace plus Projects and Documents;
+# refuses files and symbolic links at the selected directory paths and never moves content.
+bootwitch_setup() {
+  workspace=$(bootwitch_default_workspace)
+  dry_run=0
+
+  while test "$#" -gt 0; do
+    case "$1" in
+      --workspace)
+        test "$#" -ge 2 && test -n "$2" || { bootwitch_error '--workspace requires a nonempty value'; return 2; }
+        workspace=$2
+        shift 2
+        ;;
+      --dry-run) dry_run=1; shift ;;
+      -h | --help) bootwitch_usage; return 0 ;;
+      *) bootwitch_error "unknown option: $1"; return 2 ;;
+    esac
+  done
+
+  workspace=$(bootwitch_expand_path "$workspace")
+  projects_directory=$workspace/Projects
+  documents_directory=$workspace/Documents
+
+  for workspace_path in "$workspace" "$projects_directory" "$documents_directory"; do
+    if test -L "$workspace_path" || { test -e "$workspace_path" && test ! -d "$workspace_path"; }; then
+      bootwitch_error "workspace path must be a regular directory: $workspace_path"
+      return 1
+    fi
+  done
+
+  if test "$dry_run" -eq 1; then
+    printf 'Would prepare Bootwitch workspace: %s\n' "$workspace"
+    printf 'Would ensure directory: %s\n' "$projects_directory"
+    printf 'Would ensure directory: %s\n' "$documents_directory"
+    return 0
+  fi
+
+  mkdir -p "$projects_directory" "$documents_directory" || {
+    bootwitch_error "could not prepare workspace: $workspace"
+    return 1
+  }
+  printf 'Bootwitch workspace ready: %s\n' "$workspace"
 }
 
 # Function: bootwitch_validate_name
@@ -231,7 +300,7 @@ bootwitch_summon() {
 
   project_name=$(bootwitch_prompt 'Project name' '') || return 1
   template_choice=$(bootwitch_prompt 'Template' 'shell') || return 1
-  project_root=$(bootwitch_prompt 'Project root' "$HOME/Developer/Projects") || return 1
+  project_root=$(bootwitch_prompt 'Project root' "$(bootwitch_default_projects_root)") || return 1
   git_choice=$(bootwitch_prompt 'Initialize Git? Y/n' 'Y') || return 1
 
   case "$git_choice" in
@@ -269,7 +338,7 @@ bootwitch_init() {
   project_name=$1
   shift
   template_name=base
-  project_root=$HOME/Developer/Projects
+  project_root=$(bootwitch_default_projects_root)
   initialize_git=1
   dry_run=0
 
@@ -589,7 +658,8 @@ bootwitch_doctor() {
     fi
   done
 
-  bootwitch_doctor_item 'Default root' info "$HOME/Developer/Projects"
+  bootwitch_doctor_item 'Workspace' info "$(bootwitch_default_workspace)"
+  bootwitch_doctor_item 'Default root' info "$(bootwitch_default_projects_root)"
 }
 
 # Function: bootwitch_main
@@ -605,6 +675,8 @@ bootwitch_main() {
   if test "$#" -gt 0; then shift; fi
 
   case "$command_name" in
+    # Idempotently prepares the minimal user-owned workspace convention.
+    setup) bootwitch_setup "$@" ;;
     # Guided project creation; delegates writes to bootwitch_init.
     summon) bootwitch_summon "$@" ;;
     # Mutating, bounded scaffolding command; see bootwitch_init safety contract.

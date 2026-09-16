@@ -2,9 +2,9 @@
 # @bootwitch:component
 # Name: tests/test_cli.sh
 # Type: test
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
-# Version: 0.2.1
-# Purpose: Verify CLI inspection, project/script creation, dry-run, generated projects, and destination refusal.
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-16
+# Version: 0.3.0
+# Purpose: Verify workspace setup, CLI inspection, project/script creation, dry-run, generated projects, and destination refusal.
 # Arguments: None.
 # Output: CLI integration success message; failures on stderr.
 # Returns: 0 on success; nonzero on failure.
@@ -40,6 +40,33 @@ assert_contains "$templates_output" 'modules/'
 wizard_output=$(/bin/bash "$CLI" wizard)
 assert_contains "$wizard_output" 'Bootwitch'
 assert_contains "$wizard_output" 'Default root'
+
+workspace_home=$TEST_TMP/workspace-home
+mkdir -p "$workspace_home"
+
+default_preview=$(HOME="$workspace_home" /bin/bash "$CLI" init default-demo --dry-run)
+assert_contains "$default_preview" "$workspace_home/Bootwitch/Projects/default-demo"
+assert_not_exists "$workspace_home/Bootwitch"
+
+setup_preview=$(HOME="$workspace_home" /bin/bash "$CLI" setup --dry-run)
+assert_contains "$setup_preview" "Would prepare Bootwitch workspace: $workspace_home/Bootwitch"
+assert_contains "$setup_preview" "$workspace_home/Bootwitch/Projects"
+assert_contains "$setup_preview" "$workspace_home/Bootwitch/Documents"
+assert_not_exists "$workspace_home/Bootwitch"
+
+if HOME="$workspace_home" /bin/bash "$CLI" setup --workspace '' --dry-run >/dev/null 2>&1; then
+  test_fail 'empty workspace path was accepted'
+fi
+
+setup_output=$(HOME="$workspace_home" /bin/bash "$CLI" setup)
+assert_contains "$setup_output" "Bootwitch workspace ready: $workspace_home/Bootwitch"
+assert_exists "$workspace_home/Bootwitch/Projects"
+assert_exists "$workspace_home/Bootwitch/Documents"
+
+# Setup is deliberately idempotent and preserves an existing workspace.
+HOME="$workspace_home" /bin/bash "$CLI" setup >/dev/null
+assert_exists "$workspace_home/Bootwitch/Projects"
+assert_exists "$workspace_home/Bootwitch/Documents"
 
 summon_root=$TEST_TMP/summon-root
 summon_output=$(printf 'summoned-demo\nshell\n%s\nn\n' "$summon_root" | /bin/bash "$CLI" summon 2>&1)

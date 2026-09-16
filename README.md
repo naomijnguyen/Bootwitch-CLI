@@ -91,6 +91,8 @@ For a short, reproducible walkthrough, see [the demo](docs/demo.md).
 From there, use the CLI to inspect the available templates and create a project:
 
 ```sh
+./bin/bootwitch setup --dry-run
+./bin/bootwitch setup
 ./bin/bootwitch list
 ./bin/bootwitch templates
 ./bin/bootwitch wizard
@@ -98,15 +100,22 @@ From there, use the CLI to inspect the available templates and create a project:
 ./bin/bootwitch summon
 ```
 
-Bootwitch creates projects under `~/Developer/Projects` by default. Use `--root`
-to choose another parent directory, `--no-git` to skip Git initialization, or
-`--dry-run` to preview an operation without writing anything.
+`bootwitch setup` prepares the minimal user-owned workspace at `~/Bootwitch`
+with `Projects/` and `Documents/` directories. It is idempotent and does not
+move or modify existing projects. Use `--workspace` to choose another workspace
+for that setup call, or `--dry-run` to preview the directories without writing
+anything. A custom setup location does not persistently change later `init`
+defaults; pass `--root` when creating projects outside `~/Bootwitch/Projects`.
+
+Bootwitch creates new projects under `~/Bootwitch/Projects` by default. Use
+`--root` to choose another parent directory, `--no-git` to skip Git
+initialization, or `--dry-run` to preview an operation without writing anything.
 
 The Bootwitch code folder and the generated project folder are separate:
 
 ```text
 /path/to/Bootwitch-CLI/             Bootwitch itself; run ./bin/bootwitch here.
-~/Developer/Projects/my-project/   Generated project; run wrappers here.
+~/Bootwitch/Projects/my-project/   Generated project; run wrappers here.
 ```
 
 So this command:
@@ -118,7 +127,7 @@ So this command:
 creates:
 
 ```text
-~/Developer/Projects/my-project
+~/Bootwitch/Projects/my-project
 ```
 
 To create the project somewhere else, pass the parent directory with `--root`:
@@ -168,7 +177,7 @@ Terminal.
 The same actions can be run from Terminal:
 
 ```sh
-cd ~/Developer/Projects/my-project
+cd ~/Bootwitch/Projects/my-project
 ./wrappers/hello.command
 ./wrappers/initialize_project.command
 ./wrappers/run.command
@@ -178,12 +187,12 @@ They can also be launched by absolute path from somewhere else:
 
 ```sh
 cd /
-~/Developer/Projects/my-project/wrappers/run.command
+~/Bootwitch/Projects/my-project/wrappers/run.command
 ```
 
 Even though the command starts from `/`, the generated project still writes its
-report to `~/Developer/Projects/my-project/output/run-report.txt` and its log to
-`~/Developer/Projects/my-project/logs/project.log`.
+report to `~/Bootwitch/Projects/my-project/output/run-report.txt` and its log to
+`~/Bootwitch/Projects/my-project/logs/project.log`.
 
 Inside a generated shell project, create consistently formatted scripts with:
 

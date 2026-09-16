@@ -69,7 +69,15 @@ to turn user input into code.
 
 ## Project Generation Flow
 
+`bootwitch setup` prepares the current user's minimal workspace at
+`$HOME/Bootwitch`, containing `Projects/` and `Documents/`. It is idempotent,
+refuses files or symbolic links at those selected directory paths, and never
+migrates existing content. `--workspace` selects a one-time setup target; it
+does not persistently reconfigure later commands.
+
 `bootwitch init NAME` creates a project through a staged generation pipeline.
+Its default parent is `$HOME/Bootwitch/Projects`; callers can still select a
+different parent explicitly with `--root`.
 
 1. Parse only supported options: `--template`, `--root`, `--no-git`, and
    `--dry-run`.
