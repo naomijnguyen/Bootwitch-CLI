@@ -2,9 +2,14 @@
 
 Current version: `v0.3.0`
 
+**Built with Codex.** Jennifer Nguyen defined the product direction, safety
+requirements, acceptance criteria, and release decisions; Codex assisted with
+implementation, debugging, tests, documentation, and review.
+
 Bootwitch is a small, portable project scaffolder for macOS and Linux. It turns
 a project idea into a consistent local workspace with predictable folders,
 starter documentation, executable wrappers, and project-local support modules.
+It runs locally and does not require a Worker, hosted service, or cloud account.
 
 The casual version: Bootwitch is the thing I wanted when small automation
 projects kept turning into mystery folders. It gives each new project obvious
