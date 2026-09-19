@@ -2,10 +2,6 @@
 
 Current version: `v0.3.0`
 
-**Built with Codex.** Jennifer Nguyen defined the product direction, safety
-requirements, acceptance criteria, and release decisions; Codex assisted with
-implementation, debugging, tests, documentation, and review.
-
 Bootwitch is a small, portable project scaffolder for macOS and Linux. It turns
 a project idea into a consistent local workspace with predictable folders,
 starter documentation, executable wrappers, and project-local support modules.
@@ -362,6 +358,12 @@ platform detection, permissions, and documentation extraction. Runtime scripts
 derive all operational paths from the discovered project root.
 
 For more detail, see `ARCHITECTURE.md` and `docs/template-authoring.md`.
+
+## Tech stack and AI collaboration
+
+Bootwitch uses Bash for the CLI and generated shell projects, Python 3 for parsing and documentation tooling, Git for project initialization, Make for development commands, and Homebrew for packaged installation. Its checks use Bash tests, Python unittest, ShellCheck, and GitHub Actions.
+
+Since 2025, I’ve been making software in active collaboration with AI coding systems across providers, and I want to do more of it. I built Bootwitch with Codex from OpenAI across product design, implementation, debugging, tests, documentation, review, and release engineering.
 
 ## Additional documentation
 
