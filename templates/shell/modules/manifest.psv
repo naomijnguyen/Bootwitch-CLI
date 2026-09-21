@@ -1,0 +1,12 @@
+# Bootwitch generated shell modules | version 1
+# name|purpose|exported functions (comma-separated)
+adaptive_mounts|Select project root, language, and documentation provider|project_mount_resolve_root,project_mount_select_context,project_mount_detect_language,project_mount_documentation_module
+checkpoint|Report progress and optionally pause|project_checkpoint
+documentation|Build README and technical readthrough from annotations|project_render_annotations,project_collect_annotations,project_build_readme
+header|Read approved project.header values as text|project_header_get
+log|Write timestamped project messages|project_log,project_die
+module_finder|Locate modules by name or exported function without loading them|project_find_module,project_list_modules,project_find_module_for
+paths|Set and prepare standard project directories|project_set_paths,project_prepare_directories
+permissions|Make one validated project script executable|project_make_executable
+platform|Report the current operating system|project_platform
+project_root|Find the nearest marked project root|project_find_root

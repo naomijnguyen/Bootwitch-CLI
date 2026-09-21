@@ -10,6 +10,10 @@ Bootwitch composes templates in two layers. Every project receives
 - Use `{{PROJECT_NAME}}`, `{{CREATED_DATE}}`, and `{{BOOTWITCH_VERSION}}` for
   supported substitutions.
 - Keep generated paths relative to the project root.
+- Keep `templates/shell/modules/manifest.psv` aligned with the bundled shell
+  modules and their exported functions. The generated project's
+  `docs/module-catalog.md` explains its lookup-only interface; catalog
+  entries never authorize automatic sourcing or installation.
 - Do not include credentials, usernames, cloud locations, `sudo`, background
   services, or destructive cleanup commands.
 - Generated shell code must remain within the Bash 3.2 feature set.
