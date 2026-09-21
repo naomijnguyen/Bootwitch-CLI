@@ -6,7 +6,7 @@
 # Version: 0.2.0
 # Purpose: Compose project-root discovery, language detection, and documentation-provider selection.
 # Wrapper: wrappers/build_readme.command, wrappers/initialize_project.command
-# Arguments: Source this module; project_mount_select_context CALLER_PATH WRAPPER_PATH, or call its individual helpers.
+# Arguments: Source this module; project_mount_select_context WRAPPER_PATH [PROJECT_PATH], or call its individual helpers.
 # Output: Selected context variables and individual helper results.
 # Returns: 0 for successful resolution and selection; nonzero for missing roots, unknown markers, or missing providers.
 # Dependencies: Bash 3.2+, dirname, find, modules/project_root.sh.
@@ -30,18 +30,16 @@ project_mount_resolve_root() {
 }
 
 # Function: project_mount_select_context
-# Purpose: Give documentation wrappers one reusable caller-first context setup.
-# Arguments: $1 caller location; $2 wrapper location used if caller has no project.
+# Purpose: Select the wrapper's project by default, or an explicitly requested project.
+# Arguments: $1 wrapper location; optional $2 explicit project path.
 # Output: Sets PROJECT_ROOT, PROJECT_LANGUAGE, PROJECT_DOCUMENTATION_MODULE.
 # Returns: 0 on complete selection; nonzero if no root or provider is usable.
 # Safety: Resolves a marked project and a regular provider; does not source it.
 project_mount_select_context() {
-  local caller_path=$1
-  local wrapper_path=$2
+  local wrapper_path=$1
+  local project_path=${2:-$wrapper_path}
 
-  if ! PROJECT_ROOT=$(project_mount_resolve_root "$caller_path" 2>/dev/null); then
-    PROJECT_ROOT=$(project_mount_resolve_root "$wrapper_path") || return 1
-  fi
+  PROJECT_ROOT=$(project_mount_resolve_root "$project_path") || return 1
   PROJECT_LANGUAGE=$(project_mount_detect_language "$PROJECT_ROOT") || return 1
   # ShellCheck cannot see that the sourcing wrapper reads this shared value.
   # shellcheck disable=SC2034

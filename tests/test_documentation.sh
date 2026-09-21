@@ -28,18 +28,17 @@ trap 'rm -rf "$TEST_TMP"' EXIT HUP INT TERM
 /bin/bash "$PROJECT_ROOT/bin/bootwitch" init docs-demo --template shell --root "$TEST_TMP/projects with spaces" --no-git >/dev/null
 project=$TEST_TMP/'projects with spaces'/docs-demo
 builder=$project/wrappers/build_readme.command
-# The reusable context selector preserves caller-first selection and wrapper
-# fallback without changing a project while probing either route.
+# The reusable selector anchors to the wrapper unless a project is explicit.
 /bin/bash "$PROJECT_ROOT/bin/bootwitch" init docs-other --template shell --root "$TEST_TMP/projects with spaces" --no-git >/dev/null
 other_project=$TEST_TMP/'projects with spaces'/docs-other
 . "$project/modules/adaptive_mounts.sh"
-project_mount_select_context "$other_project" "$project/wrappers"
-test "$PROJECT_ROOT" = "$other_project"
-test "$PROJECT_LANGUAGE" = shell
-test "$PROJECT_DOCUMENTATION_MODULE" = "$other_project/modules/documentation.sh"
-project_mount_select_context / "$project/wrappers"
+project_mount_select_context "$project/wrappers"
 test "$PROJECT_ROOT" = "$project"
-if project_mount_select_context / / >/dev/null 2>&1; then
+test "$PROJECT_LANGUAGE" = shell
+test "$PROJECT_DOCUMENTATION_MODULE" = "$project/modules/documentation.sh"
+project_mount_select_context "$project/wrappers" "$other_project"
+test "$PROJECT_ROOT" = "$other_project"
+if project_mount_select_context "$project/wrappers" / >/dev/null 2>&1; then
   printf 'Context selector accepted paths without a project marker.\n' >&2
   exit 1
 fi
@@ -49,6 +48,31 @@ technical=$project/docs/technical-readthrough.md
 start='<!-- BOOTWITCH:DOCS:START -->'
 finish='<!-- BOOTWITCH:DOCS:END -->'
 printf 'Human introduction\n%s\nOld generated text\n%s\nHuman ending\n' "$start" "$finish" > "$readme"
+cp "$other_project/README.md" "$TEST_TMP/other-readme-before"
+(cd "$other_project" && /bin/bash "$builder" >/dev/null)
+if grep -q 'Old generated text' "$readme"; then exit 1; fi
+cmp -s "$other_project/README.md" "$TEST_TMP/other-readme-before"
+printf 'Human introduction\n%s\nOld generated text\n%s\nHuman ending\n' "$start" "$finish" > "$other_project/README.md"
+cp "$readme" "$TEST_TMP/local-readme-before"
+/bin/bash "$builder" --project "$other_project" >/dev/null
+if grep -q 'Old generated text' "$other_project/README.md"; then exit 1; fi
+cmp -s "$readme" "$TEST_TMP/local-readme-before"
+if /bin/bash "$builder" --project / >"$TEST_TMP/stdout" 2>"$TEST_TMP/stderr"; then
+  printf 'README wrapper accepted an invalid explicit project.\n' >&2
+  exit 1
+fi
+cmp -s "$readme" "$TEST_TMP/local-readme-before"
+# Initialization uses the same default and override even when launched elsewhere.
+printf 'Human introduction\n%s\nOld generated text\n%s\nHuman ending\n' "$start" "$finish" > "$readme"
+cp "$other_project/README.md" "$TEST_TMP/other-readme-before"
+(cd "$other_project" && /bin/bash "$project/wrappers/initialize_project.command" >/dev/null)
+if grep -q 'Old generated text' "$readme"; then exit 1; fi
+cmp -s "$other_project/README.md" "$TEST_TMP/other-readme-before"
+printf 'Human introduction\n%s\nOld generated text\n%s\nHuman ending\n' "$start" "$finish" > "$other_project/README.md"
+cp "$readme" "$TEST_TMP/local-readme-before"
+/bin/bash "$project/wrappers/initialize_project.command" --project "$other_project" >/dev/null
+if grep -q 'Old generated text' "$other_project/README.md"; then exit 1; fi
+cmp -s "$readme" "$TEST_TMP/local-readme-before"
 grep -q '{{SCRIPT_CREATED_DATE}}' "$project/.bootwitch/templates/script.sh.tpl"
 grep -q '{{SCRIPT_UPDATED_DATE}}' "$project/.bootwitch/templates/script.sh.tpl"
 test -f "$project/.bootwitch/templates/python-component.header.tpl"

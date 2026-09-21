@@ -7,7 +7,7 @@
 # Version: 0.3.0
 # Purpose: Prepare folders, permissions, and generated component/function documentation.
 # Module: modules/adaptive_mounts.sh, modules/paths.sh, modules/log.sh, modules/checkpoint.sh, modules/permissions.sh, modules/header.sh, modules/documentation.sh
-# Arguments: Optional --pause enables interactive checkpoints.
+# Arguments: Optional --pause enables checkpoints; --project PATH selects another marked project.
 # Output: Permission changes and both documentation paths on stdout; checkpoints/errors on stderr.
 # Returns: 0 on success; nonzero on failure.
 # Dependencies: Bash 3.2+, dirname, basename, find, and adaptive_mounts/paths/log/checkpoint/permissions/header/documentation modules and their dependencies.
@@ -23,7 +23,22 @@ set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 . "$WRAPPER_DIR/../modules/adaptive_mounts.sh"
-project_mount_select_context "$PWD" "$WRAPPER_DIR"
+PROJECT_PAUSE_MODE=0
+PROJECT_OVERRIDE=''
+while test $# -gt 0; do
+  case "$1" in
+    --pause) PROJECT_PAUSE_MODE=1; shift ;;
+    --project)
+      if test $# -lt 2 || test -z "$2"; then
+        printf 'Usage: %s [--pause] [--project PATH]\n' "${0##*/}" >&2
+        exit 2
+      fi
+      PROJECT_OVERRIDE=$2
+      shift 2 ;;
+    *) printf 'Usage: %s [--pause] [--project PATH]\n' "${0##*/}" >&2; exit 2 ;;
+  esac
+done
+project_mount_select_context "$WRAPPER_DIR" "$PROJECT_OVERRIDE"
 . "$PROJECT_ROOT/modules/paths.sh"
 . "$PROJECT_ROOT/modules/log.sh"
 . "$PROJECT_ROOT/modules/checkpoint.sh"
@@ -34,7 +49,7 @@ project_mount_select_context "$PWD" "$WRAPPER_DIR"
 
 # Function: main
 # Purpose: Perform the starter's visible, repeatable initialization sequence.
-# Arguments: Optional --pause asks after each completed checkpoint.
+# Arguments: None; wrapper options have already been parsed.
 # Output: Progress checkpoints plus permission and README update messages.
 # How it works: Prepare folders, repair known runnable file permissions, rebuild
 # generated README documentation, then run bounded syntax/structure checks.
@@ -43,12 +58,7 @@ main() {
   local runnable_file
   local relative_file
 
-  export PROJECT_PAUSE_MODE=0
-  case "${1:-}" in
-    '') ;;
-    --pause) PROJECT_PAUSE_MODE=1 ;;
-    *) printf 'Usage: %s [--pause]\n' "$(basename -- "$0")" >&2; return 2 ;;
-  esac
+  export PROJECT_PAUSE_MODE
 
   project_set_paths "$PROJECT_ROOT"
   project_prepare_directories
@@ -79,4 +89,4 @@ main() {
   project_checkpoint 'Project structure and shell syntax are verified.'
 }
 
-main "$@"
+main

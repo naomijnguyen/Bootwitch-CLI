@@ -8,7 +8,7 @@
 # Purpose: Refresh the README component reference and separate technical readthrough.
 # Module: modules/adaptive_mounts.sh, modules/paths.sh, modules/header.sh, modules/documentation.sh
 # Calls: project_build_readme
-# Arguments: None.
+# Arguments: Optional --project PATH selects another marked project.
 # Output: Updated README and technical-readthrough paths on stdout; errors on stderr.
 # Returns: 0 on success; nonzero on failure.
 # Dependencies: Bash 3.2+, dirname, mkdir, modules/adaptive_mounts.sh, paths, header, and documentation modules plus their dependencies.
@@ -24,7 +24,16 @@ set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 . "$WRAPPER_DIR/../modules/adaptive_mounts.sh"
-project_mount_select_context "$PWD" "$WRAPPER_DIR"
+case $# in
+  0) project_mount_select_context "$WRAPPER_DIR" ;;
+  2) if test "$1" = --project && test -n "$2"; then
+       project_mount_select_context "$WRAPPER_DIR" "$2"
+     else
+       printf 'Usage: %s [--project PATH]\n' "${0##*/}" >&2
+       exit 2
+     fi ;;
+  *) printf 'Usage: %s [--project PATH]\n' "${0##*/}" >&2; exit 2 ;;
+esac
 
 . "$PROJECT_ROOT/modules/paths.sh"
 . "$PROJECT_ROOT/modules/header.sh"
