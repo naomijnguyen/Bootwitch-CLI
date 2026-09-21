@@ -68,6 +68,24 @@ every run cannot safely update an existing remote via a normal push; repeated
 releases need a reviewed diff/PR against the previous public output or an
 explicitly designed publishing workflow, not an automatic force push.
 
+## Reuse boundary: exclusive local publication
+
+Bootwitch's existing `lib/bootwitch/publish.py` already solves one later
+operation: atomically rename a complete directory to a **nonexistent sibling**
+on a supported local filesystem. Its tests prove no replacement, source
+retention on failure, and no weaker rename fallback. It does not inspect
+content, dependencies, build artifacts, Git history, or review approval.
+
+Do not point it at the current `run-<uuid>/source/` directory. That tree is a
+private input snapshot, its run marker says only `staged`, and moving it would
+separate the source from the run's verification and cleanup record. A later
+export step may prepare a separately verified sibling directory and call
+`publish.py` **after** the isolated build, artifact inspection, and approval
+gates. That step must preserve a review record and handle an uncertain rename
+acknowledgement without deleting either the prepared or destination tree.
+This is local output publication only; pushing to a remote remains a separate
+authorized operation.
+
 ## Failed-run cleanup
 
 The optional cleanup command handles marked failed staging runs:
