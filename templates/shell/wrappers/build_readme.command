@@ -3,8 +3,8 @@
 # Name: build_readme.command
 # Display Name: Build README
 # Type: wrapper
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-12
-# Version: 0.2.1
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-21
+# Version: 0.3.0
 # Purpose: Refresh the README component reference and separate technical readthrough.
 # Module: modules/adaptive_mounts.sh, modules/paths.sh, modules/header.sh, modules/documentation.sh
 # Calls: project_build_readme
@@ -24,17 +24,7 @@ set -o pipefail
 
 WRAPPER_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 . "$WRAPPER_DIR/../modules/adaptive_mounts.sh"
-if ! PROJECT_ROOT=$(project_mount_resolve_root "$PWD" 2>/dev/null); then
-  if ! PROJECT_ROOT=$(project_mount_resolve_root "$WRAPPER_DIR"); then
-    exit 1
-  fi
-fi
-if ! PROJECT_LANGUAGE=$(project_mount_detect_language "$PROJECT_ROOT"); then
-  exit 1
-fi
-if ! PROJECT_DOCUMENTATION_MODULE=$(project_mount_documentation_module "$PROJECT_ROOT" "$PROJECT_LANGUAGE"); then
-  exit 1
-fi
+project_mount_select_context "$PWD" "$WRAPPER_DIR"
 
 . "$PROJECT_ROOT/modules/paths.sh"
 . "$PROJECT_ROOT/modules/header.sh"

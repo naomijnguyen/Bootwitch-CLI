@@ -2,8 +2,8 @@
 # @bootwitch:component
 # Name: tests/test_documentation.sh
 # Type: test
-# Dates: Created: 2026-09-11 | Last Updated: 2026-09-12
-# Version: 0.4.0
+# Dates: Created: 2026-09-11 | Last Updated: 2026-09-21
+# Version: 0.5.0
 # Purpose: Verify separate component/function views, Bash/Python discovery, refresh, and safe documentation publication.
 # Arguments: None.
 # Output: README integration success message; failures on stderr.
@@ -22,11 +22,28 @@ set -o pipefail
 TEST_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 PROJECT_ROOT=$(CDPATH='' cd -- "$TEST_DIR/.." && pwd)
 TEST_TMP=$(mktemp -d "${TMPDIR:-/tmp}/bootwitch-doc-tests.XXXXXX")
+TEST_TMP=$(CDPATH='' cd -P -- "$TEST_TMP" && pwd)
 trap 'rm -rf "$TEST_TMP"' EXIT HUP INT TERM
 
 /bin/bash "$PROJECT_ROOT/bin/bootwitch" init docs-demo --template shell --root "$TEST_TMP/projects with spaces" --no-git >/dev/null
 project=$TEST_TMP/'projects with spaces'/docs-demo
 builder=$project/wrappers/build_readme.command
+# The reusable context selector preserves caller-first selection and wrapper
+# fallback without changing a project while probing either route.
+/bin/bash "$PROJECT_ROOT/bin/bootwitch" init docs-other --template shell --root "$TEST_TMP/projects with spaces" --no-git >/dev/null
+other_project=$TEST_TMP/'projects with spaces'/docs-other
+. "$project/modules/adaptive_mounts.sh"
+project_mount_select_context "$other_project" "$project/wrappers"
+test "$PROJECT_ROOT" = "$other_project"
+test "$PROJECT_LANGUAGE" = shell
+test "$PROJECT_DOCUMENTATION_MODULE" = "$other_project/modules/documentation.sh"
+project_mount_select_context / "$project/wrappers"
+test "$PROJECT_ROOT" = "$project"
+if project_mount_select_context / / >/dev/null 2>&1; then
+  printf 'Context selector accepted paths without a project marker.\n' >&2
+  exit 1
+fi
+PROJECT_ROOT=$(CDPATH='' cd -- "$TEST_DIR/.." && pwd)
 readme=$project/README.md
 technical=$project/docs/technical-readthrough.md
 start='<!-- BOOTWITCH:DOCS:START -->'

@@ -2,10 +2,10 @@
 # @bootwitch:component
 # Name: project_root
 # Type: module
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-21
+# Version: 0.1.2
 # Purpose: Find the project boundary from any file or folder inside the project.
-# Wrapper: wrappers/initialize_project.command
+# Wrapper: modules/adaptive_mounts.sh, wrappers/make_executable.command
 # Arguments: Source this module; project_find_root [START_PATH], defaulting to the current directory.
 # Output: Prints the absolute physical project path.
 # Returns: 0 on success; nonzero on failure. See function comments for individual statuses.
