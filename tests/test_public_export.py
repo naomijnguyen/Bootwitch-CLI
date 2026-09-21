@@ -42,6 +42,8 @@ class InventoryTests(unittest.TestCase):
 
     def test_rejects_private_source_and_output(self):
         for field, value in (("source", "internal/note.md"),
+                             ("source", "local-private/recruiter-notes.md"),
+                             ("output", "local-private/recruiter-notes.md"),
                              ("output", "AGENTS/notes.md"),
                              ("source", "AGENTS.md"),
                              ("output", "AGENTS.md")):

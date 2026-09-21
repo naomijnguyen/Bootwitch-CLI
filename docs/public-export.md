@@ -1,8 +1,8 @@
 # Public repository generator — Bootwitch contract
 
 Status: reusable tool in progress. The current implementation inventories an
-explicit manifest; it does **not** yet copy files, build, create a Git repo,
-push, or certify an output safe.
+explicit manifest and copies verified files into a private staging run. It does
+**not** build, create a Git repo, push, or certify an output safe.
 
 Each project owns a reviewed `exports/github-safe.json` file. Bootwitch owns validation,
 staging, verification, and eventual repo creation. The manifest lists individual
@@ -27,8 +27,22 @@ Run the current read-only preflight with
 selected paths, sizes, and SHA-256 hashes, never file bodies. It rejects
 missing files, duplicate or file/parent-colliding output paths (including
 case-only variants), traversal, symlinks, and obvious private path
-names, including `AGENTS.md`. The example content must be separately authored and reviewed; labeling
+names, including `AGENTS.md` and `local-private/`. The example content must be separately authored and reviewed; labeling
 an existing private document as an example does not make it safe.
+
+Stage an approved manifest into a separate output tree with
+`python3 lib/bootwitch/export_stage.py PROJECT_ROOT /path/to/export-runs`.
+The `export-runs` directory must be outside the project (neither tree may
+contain the other). Bootwitch creates it privately with a root marker, or
+reuses an existing private, correctly marked root; it refuses an unmarked or
+symlinked output root. Each run gets its own `run-<uuid>/source/` tree with
+only the declared output files. It opens source paths without following
+symlinks and checks source identity, byte count, and SHA-256 while copying.
+A copy failure retains a marked `failed` run for review and eventual manual
+cleanup. A successful run has status `staged`, which is **not** publication
+approval. The caller must review the staged source and later build artifacts;
+the manifest path rules cannot detect secrets or private text inside an
+otherwise allowed file.
 
 Do not confuse this export allowlist with `deployments/<name>.json`, which
 selects a content pack for a website build, or with a generated
@@ -39,15 +53,13 @@ guide can be considered later, but the current exporter excludes every
 
 ## Required next gates before generating a pushable repository
 
-1. Copy only the reviewed manifest entries into a new, exclusive staging
-   directory; recheck identity and hashes during copying to prevent races.
-2. Verify the stage contains **exactly** declared outputs. Check import/build
+1. Verify the stage contains **exactly** declared outputs. Check import/build
    dependencies; an allowlisted entry can still embed private bytes or refer
    to an undeclared source.
-3. Run clean install, tests, and build inside the isolated stage, without
+2. Run clean install, tests, and build inside the isolated stage, without
    access to the private project. Inspect both source and built client/server
    artifacts for disallowed paths and sensitive content.
-4. Obtain independent safety/content review and Jennifer's publication
+3. Obtain independent safety/content review and Jennifer's publication
    approval. Only then initialize a fresh public Git history in the verified
    output. Never reuse the private project's Git history.
 
@@ -58,7 +70,7 @@ explicitly designed publishing workflow, not an automatic force push.
 
 ## Failed-run cleanup
 
-The optional cleanup command is available before staging is implemented:
+The optional cleanup command handles marked failed staging runs:
 
 ```sh
 python3 lib/bootwitch/export_prune.py /path/to/export-runs
@@ -73,7 +85,7 @@ named `run-<uuid>` and contain a regular `.bootwitch-export-run.json` with
 `version: 1`, a matching `run_id`, `status: "failed"`, and an ISO `created_at`.
 Both the run's recorded creation and every file/directory modification must
 be more than 14 days old. Approved runs, recently touched material, unmarked
-folders, and symlinks are left alone. The future exporter must create these
-markers only for its own output; do not add them to an existing hand-maintained
+folders, and symlinks are left alone. The exporter creates these markers
+only for its own output; do not add them to an existing hand-maintained
 directory. This is cooperative local cleanup, not protection against a hostile
 process replacing paths concurrently.

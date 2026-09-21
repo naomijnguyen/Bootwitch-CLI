@@ -28,7 +28,7 @@ import sys
 
 FORBIDDEN_PARTS = {
     ".git", ".env", "agents", "agents.md", "internal", "interview", "interviews",
-    "private", "private-assets", "recruiter", "secrets", "study-guides",
+    "private", "private-assets", "local-private", "recruiter", "secrets", "study-guides",
 }
 ALLOWED_KINDS = {"source", "example-content", "public-asset", "build-config"}
 EXPORT_MANIFEST = Path("exports/github-safe.json")
