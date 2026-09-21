@@ -18,6 +18,7 @@ from public_export import inventory
 
 ROOT_MARKER = ".bootwitch-export-output.json"
 RUN_MARKER = ".bootwitch-export-run.json"
+INVENTORY_MARKER = ".bootwitch-export-inventory.json"
 ROOT_MARKER_DATA = {"version": 1, "purpose": "bootwitch-export-runs"}
 DIRECTORY_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
 FILE_FLAGS = os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0)
@@ -111,6 +112,7 @@ def stage(project_root, output_root, *, after_inventory=None):
     marker = {"version": 1, "run_id": run_id, "status": "failed",
               "created_at": datetime.now(timezone.utc).isoformat()}
     _write_new_json(run / RUN_MARKER, marker)
+    _write_new_json(run / INVENTORY_MARKER, report)
     source_tree = run / "source"
     source_tree.mkdir(mode=0o700)
     project_fd = os.open(project, DIRECTORY_FLAGS)

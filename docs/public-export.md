@@ -2,7 +2,8 @@
 
 Status: reusable tool in progress. The current implementation inventories an
 explicit manifest and copies verified files into a private staging run. It does
-**not** build, create a Git repo, push, or certify an output safe.
+not build, create a Git repo, push, or certify an output safe. A separate
+read-only verifier checks the staged tree against its saved inventory.
 
 Each project owns a reviewed `exports/github-safe.json` file. Bootwitch owns validation,
 staging, verification, and eventual repo creation. The manifest lists individual
@@ -44,6 +45,17 @@ approval. The caller must review the staged source and later build artifacts;
 the manifest path rules cannot detect secrets or private text inside an
 otherwise allowed file.
 
+Each run saves the approved path/size/hash inventory privately as
+`.bootwitch-export-inventory.json`, alongside its status marker. Verify a
+completed run with `python3 lib/bootwitch/export_verify.py RUN_PATH`. This
+checks the root and run markers, requires `staged` status, then rejects
+missing, extra, linked, non-private, or hash-mismatched entries under
+`source/`. A passing message reports a file count and explicitly says the
+run is **not approved for publication**. The verifier reads no live project
+files, so a later source edit does not silently redefine what was staged.
+The saved inventory and stage live in one private local tree; this is not a
+cryptographic attestation against a hostile process that can rewrite both.
+
 Do not confuse this export allowlist with `deployments/<name>.json`, which
 selects a content pack for a website build, or with a generated
 `content-packs/<name>/manifest.json`, which indexes website content. Neither
@@ -53,8 +65,8 @@ guide can be considered later, but the current exporter excludes every
 
 ## Required next gates before generating a pushable repository
 
-1. Verify the stage contains **exactly** declared outputs. Check import/build
-   dependencies; an allowlisted entry can still embed private bytes or refer
+1. Check import/build dependencies; an allowlisted entry can still embed
+   private bytes or refer
    to an undeclared source.
 2. Run clean install, tests, and build inside the isolated stage, without
    access to the private project. Inspect both source and built client/server
