@@ -26,7 +26,11 @@ Bootwitch composes templates in two layers. Every project receives
 
 Generated project metadata is written separately to `.bootwitch/project.conf`.
 Consumers must use the allowlisted parser in `lib/bootwitch/config.sh`; never
-source metadata as shell code.
+source metadata as shell code. The parser validates exactly the five fields
+written by the current schema before returning a requested value; duplicate,
+unknown, missing, or malformed fields fail. The read-only `bootwitch
+project-info [--project PATH]` command is the supported way to inspect a
+generated project's record from the toolkit.
 
 Every template inherits `docs/project/`, a version-controlled memory folder for
 current state, decisions, questions, and dated work-session updates. Specialized

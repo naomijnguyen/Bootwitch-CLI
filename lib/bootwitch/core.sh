@@ -2,14 +2,14 @@
 # @bootwitch:component
 # Name: lib/bootwitch/core.sh
 # Type: module
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-16
-# Version: 0.4.2
-# Purpose: Implement the Bootwitch CLI dispatcher, workspace setup, project and script generation, prompts, and diagnostics.
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-21
+# Version: 0.5.0
+# Purpose: Implement Bootwitch CLI dispatch, project creation, metadata inspection, scripts, and diagnostics.
 # Arguments: Source with BOOTWITCH_HOME set; bootwitch_main receives CLI arguments.
 # Output: Command results, setup prompts, progress, and diagnostics when functions are called.
 # Returns: 0 on success; nonzero on failure. See function comments for individual statuses.
-# Dependencies: Python 3 for init/summon publication; Bash 3.2+, tr, sed, grep, find, mktemp, mkdir, cp, cat, chmod, rm, date; uname for diagnostics; Git unless --no-git.
-# Reads: VERSION when sourced; bundled templates, selected generated-project markers, and environment when functions run.
+# Dependencies: Python 3 for init/summon publication; Bash 3.2+, tr, sed, grep, find, mktemp, mkdir, cp, cat, chmod, rm, date; awk/wc for project-info; uname for diagnostics; Git unless --no-git.
+# Reads: VERSION when sourced; bundled templates, selected project markers/metadata, and environment when functions run.
 # Writes: Creation functions write staged projects or delegate one script creation to a selected generated project.
 # Safety: Validates names/options and project boundaries; dry-run returns before project writes; cleanup targets allocated staging.
 # Example: Loaded by the toolkit or its tests; see function contracts above.
@@ -32,6 +32,7 @@ Usage:
   bootwitch init NAME [--template base|shell] [--root PATH] [--no-git] [--dry-run]
   bootwitch summon
   bootwitch new-script NAME [scripts|src|tests] [--project PATH]
+  bootwitch project-info [--project PATH]
   bootwitch list
   bootwitch templates
   bootwitch wizard
@@ -574,6 +575,51 @@ bootwitch_new_script() {
   )
 }
 
+# Function: bootwitch_project_info
+# Command: bootwitch project-info [--project PATH]
+# Purpose: Inspect one generated project's validated plain-text metadata.
+# Arguments: Optional --project PATH; otherwise discover above the caller's cwd.
+# Output: Five fixed-label metadata fields on stdout after complete validation.
+# Returns: 0 on success, 2 for invalid arguments, nonzero for project/metadata errors.
+# Safety: Selects the fixed project marker through strict root discovery and
+# reads known keys as data; invalid records produce no partial stdout.
+bootwitch_project_info() {
+  local project_start=$PWD
+  local project_root
+  local config_path
+  local config_record
+  local schema
+  local project_name
+  local template_name
+  local created_date
+  local created_with
+
+  case "$#" in
+    0) ;;
+    2)
+      if test "$1" != --project || test -z "$2"; then
+        bootwitch_error 'usage: bootwitch project-info [--project PATH]'
+        return 2
+      fi
+      project_start=$2
+      ;;
+    *)
+      bootwitch_error 'usage: bootwitch project-info [--project PATH]'
+      return 2
+      ;;
+  esac
+
+  project_root=$(bootwitch_find_project_root "$project_start") || return 1
+  config_path=$project_root/.bootwitch/project.conf
+  # shellcheck source=config.sh
+  . "$BOOTWITCH_HOME/lib/bootwitch/config.sh"
+  config_record=$(bootwitch_config_read "$config_path") || return 1
+  IFS=$'\t' read -r schema project_name template_name created_date created_with <<< "$config_record"
+
+  printf 'Project: %s\nTemplate: %s\nCreated: %s\nMetadata schema: %s\nBootwitch version: %s\n' \
+    "$project_name" "$template_name" "$created_date" "$schema" "$created_with"
+}
+
 # Function: bootwitch_list
 # Command: bootwitch list
 # Purpose: Show which project templates this release supports.
@@ -699,6 +745,8 @@ bootwitch_main() {
     init) bootwitch_init "$@" ;;
     # Explicitly delegates to a selected generated project's bounded generator.
     new-script) bootwitch_new_script "$@" ;;
+    # Read-only, validated generated-project metadata.
+    project-info) bootwitch_project_info "$@" ;;
     # Read-only template inventory.
     list) bootwitch_list ;;
     # Read-only template details.

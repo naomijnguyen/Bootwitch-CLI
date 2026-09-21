@@ -147,6 +147,18 @@ platform, Bash, Git, optional developer tools, and default project root.
 `list` is the short template list. `templates` is the fuller overview that shows
 what each template creates.
 
+`project-info` reads the metadata of the nearest generated project, or one
+selected with `--project PATH`, without changing it:
+
+```sh
+./bin/bootwitch project-info --project ~/Bootwitch/Projects/my-project
+```
+
+It validates the complete project record before showing the name, template,
+creation date, metadata schema, and Bootwitch version. A missing or malformed
+record fails without a partial report. It reads metadata as text; it never
+sources it as shell code.
+
 `summon` is the guided project creator. It asks for the project name, template,
 project root, and whether to initialize Git, then calls the same safe generation
 path as `init`.

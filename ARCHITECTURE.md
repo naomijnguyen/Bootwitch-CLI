@@ -40,7 +40,8 @@ lib/bootwitch/core.sh
     -> environment diagnostics
 
 lib/bootwitch/config.sh
-    -> allowlisted plain-text metadata reader
+    -> validates the complete plain-text project record
+    -> returns only a requested allowlisted field
 
 templates/base/
     -> language-neutral project foundation
@@ -59,11 +60,13 @@ location. The CLI then dispatches only known command names:
 - `init`
 - `setup`
 - `summon`
+- `new-script`
 - `list`
 - `templates`
 - `wizard`
 - `doctor`
 - `help`
+- `project-info`
 
 Unknown commands fail closed. Bootwitch does not use dynamic shell evaluation
 to turn user input into code.
@@ -132,8 +135,13 @@ BOOTWITCH_VERSION=0.3.0
 ```
 
 This file is data, not executable configuration. `lib/bootwitch/config.sh`
-reads only allowlisted keys and never sources the file. That keeps project
-metadata useful without letting arbitrary text become shell code.
+validates the full five-field schema before returning an allowlisted key and
+never sources the file. `bootwitch project-info [--project PATH]` resolves the
+nearest project or an explicitly selected one, reads only its fixed metadata
+path, buffers all five values, and then prints a fixed-label report. Duplicate,
+unknown, missing, malformed, symlinked, or unsupported-schema metadata fails
+without a partial report. Existing project creation and script-generation
+commands do not depend on metadata values from this reader.
 
 ## Wrapper And Module Pattern
 
