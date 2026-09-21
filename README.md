@@ -300,6 +300,14 @@ The practical result is:
 - a script moved outside the project stops instead of guessing at paths;
 - logs and reports stay inside the project that produced them.
 
+## Optional media derivatives
+
+Bootwitch includes an opt-in local [media optimization pilot](docs/media-optimize.md)
+for creating smaller WebP or MP4 derivatives beside—not over—source assets.
+It is a standalone Python tool, not a generated-project command or automatic
+deployment step. Review image detail, transparency, audio, and playback before
+changing a site to reference a derivative.
+
 ## Development
 
 Bootwitch keeps runtime dependencies small and treats quality tools separately.
