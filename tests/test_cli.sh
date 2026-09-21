@@ -33,6 +33,13 @@ assert_contains "$help_output" 'setup prepares $HOME/Bootwitch'
 assert_contains "$help_output" 'init creates one project under $HOME/Bootwitch/Projects'
 assert_contains "$help_output" 'Both commands can be run from any working directory.'
 
+# Installed commands are commonly symlinks outside the toolkit directory. The
+# entry point must follow the link before looking for its bundled core library.
+linked_cli=$TEST_TMP/bootwitch
+ln -s "$CLI" "$linked_cli"
+linked_help_output=$(/bin/bash "$linked_cli" help)
+assert_contains "$linked_help_output" 'Usage:'
+
 list_output=$(/bin/bash "$CLI" list)
 assert_contains "$list_output" 'base'
 assert_contains "$list_output" 'shell'

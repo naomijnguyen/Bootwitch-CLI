@@ -19,9 +19,27 @@ set -e
 set -u
 set -o pipefail
 
-# Safety: resolve the installation from this executable instead of trusting the
-# caller's working directory or a user-specific absolute path.
-BOOTWITCH_BIN_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+# Safety: resolve symbolic links before locating the installation. Package
+# managers and manual installs may expose this entry point through a link whose
+# parent directory does not contain Bootwitch's bundled library.
+BOOTWITCH_SOURCE=$0
+BOOTWITCH_LINK_DEPTH=0
+while test -L "$BOOTWITCH_SOURCE"; do
+  BOOTWITCH_LINK_DEPTH=$((BOOTWITCH_LINK_DEPTH + 1))
+  if test "$BOOTWITCH_LINK_DEPTH" -gt 40; then
+    printf 'bootwitch: too many symbolic links while resolving %s\n' "$0" >&2
+    exit 1
+  fi
+
+  BOOTWITCH_SOURCE_DIR=$(CDPATH='' cd -- "$(dirname -- "$BOOTWITCH_SOURCE")" && pwd)
+  BOOTWITCH_LINK=$(readlink "$BOOTWITCH_SOURCE")
+  case $BOOTWITCH_LINK in
+    /*) BOOTWITCH_SOURCE=$BOOTWITCH_LINK ;;
+    *) BOOTWITCH_SOURCE=$BOOTWITCH_SOURCE_DIR/$BOOTWITCH_LINK ;;
+  esac
+done
+
+BOOTWITCH_BIN_DIR=$(CDPATH='' cd -- "$(dirname -- "$BOOTWITCH_SOURCE")" && pwd)
 BOOTWITCH_HOME=$(CDPATH='' cd -- "$BOOTWITCH_BIN_DIR/.." && pwd)
 
 # shellcheck source=../lib/bootwitch/core.sh
