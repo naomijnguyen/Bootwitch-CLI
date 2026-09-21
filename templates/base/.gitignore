@@ -13,3 +13,5 @@ output/*
 !cache/.gitkeep
 !temp/.gitkeep
 !output/.gitkeep
+.env
+env/

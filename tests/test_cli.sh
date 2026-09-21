@@ -139,6 +139,17 @@ assert_exists "$shell_project/modules/log.sh"
 assert_exists "$shell_project/wrappers/run.command"
 /bin/bash "$shell_project/tests/run.sh" >/dev/null
 
+# Generated projects ignore local environment secrets without hiding a
+# shareable example file or an ordinary file named "env".
+git -C "$shell_project" check-ignore -q -- .env || test_fail '.env is not ignored'
+git -C "$shell_project" check-ignore -q -- env/settings || test_fail 'env/ is not ignored'
+if git -C "$shell_project" check-ignore -q -- .env.example; then
+  test_fail '.env.example is unexpectedly ignored'
+fi
+if git -C "$shell_project" check-ignore -q -- env; then
+  test_fail 'a file named env is unexpectedly ignored'
+fi
+
 script_error=$TEST_TMP/new-script-error
 script_output=$(/bin/bash "$CLI" new-script cli-probe src --project "$shell_project" 2>"$script_error")
 test ! -s "$script_error" || test_fail 'explicit project script creation emitted an unexpected warning'
