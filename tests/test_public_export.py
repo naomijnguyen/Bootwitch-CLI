@@ -67,6 +67,42 @@ class InventoryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.check(self.entries * 2)
 
+    def test_rejects_output_file_directory_collision_in_either_order(self):
+        (self.root / "src/config.txt").write_text("configuration", encoding="utf-8")
+        parent = {**self.entries[0], "output": "app"}
+        child = {"kind": "source", "source": "src/config.txt",
+                 "output": "app/config.json"}
+        for entries in ([parent, child], [child, parent]):
+            with self.subTest(outputs=[entry["output"] for entry in entries]):
+                with self.assertRaisesRegex(ValueError, "output path conflict"):
+                    self.check(entries)
+
+    def test_accepts_distinct_sibling_outputs(self):
+        (self.root / "src/config.txt").write_text("configuration", encoding="utf-8")
+        entries = [{**self.entries[0], "output": "app/main.txt"},
+                   {"kind": "source", "source": "src/config.txt",
+                    "output": "app/config.json"}]
+        report = self.check(entries)
+        self.assertEqual([file["output"] for file in report["files"]],
+                         ["app/main.txt", "app/config.json"])
+
+    def test_rejects_case_insensitive_output_collisions(self):
+        (self.root / "src/config.txt").write_text("configuration", encoding="utf-8")
+        second = {"kind": "source", "source": "src/config.txt"}
+        for first_output, second_output in (("App", "app/config.json"),
+                                            ("README.md", "readme.md")):
+            for outputs in ((first_output, second_output),
+                            (second_output, first_output)):
+                entries = [{**self.entries[0], "output": outputs[0]},
+                           {**second, "output": outputs[1]}]
+                with self.subTest(outputs=outputs):
+                    with self.assertRaisesRegex(ValueError, "output path conflict"):
+                        self.check(entries)
+
+    def test_preserves_valid_output_spelling(self):
+        report = self.check([{**self.entries[0], "output": "App/Main.txt"}])
+        self.assertEqual(report["files"][0]["output"], "App/Main.txt")
+
 
 if __name__ == "__main__":
     unittest.main()

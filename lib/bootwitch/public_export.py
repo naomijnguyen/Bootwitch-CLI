@@ -73,6 +73,12 @@ def inventory(project_root):
         output = _relative_path(entry["output"], "output")
         if str(source) in seen_sources or str(output) in seen_outputs:
             raise ValueError("duplicate source or output path")
+        output_parts = tuple(part.casefold() for part in output.parts)
+        for existing in seen_outputs:
+            existing_parts = tuple(part.casefold() for part in Path(existing).parts)
+            if (output_parts[:len(existing_parts)] == existing_parts
+                    or existing_parts[:len(output_parts)] == output_parts):
+                raise ValueError(f"output path conflict: {output} and {existing}")
         seen_sources.add(str(source))
         seen_outputs.add(str(output))
         physical = root / source

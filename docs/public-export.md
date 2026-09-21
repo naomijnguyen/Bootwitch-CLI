@@ -25,7 +25,8 @@ Run the current read-only preflight with
 `python3 lib/bootwitch/public_export.py PROJECT_ROOT`. It reads only
 `PROJECT_ROOT/exports/github-safe.json` and reports
 selected paths, sizes, and SHA-256 hashes, never file bodies. It rejects
-missing files, duplicate paths, traversal, symlinks, and obvious private path
+missing files, duplicate or file/parent-colliding output paths (including
+case-only variants), traversal, symlinks, and obvious private path
 names, including `AGENTS.md`. The example content must be separately authored and reviewed; labeling
 an existing private document as an example does not make it safe.
 
