@@ -54,3 +54,25 @@ Generation and publication remain separate operations. A fresh history on
 every run cannot safely update an existing remote via a normal push; repeated
 releases need a reviewed diff/PR against the previous public output or an
 explicitly designed publishing workflow, not an automatic force push.
+
+## Failed-run cleanup
+
+The optional cleanup command is available before staging is implemented:
+
+```sh
+python3 lib/bootwitch/export_prune.py /path/to/export-runs
+python3 lib/bootwitch/export_prune.py /path/to/export-runs --apply
+```
+
+The first command only previews eligible directories; the second removes
+them. Nothing runs on a schedule. The tool accepts only an `export-runs`
+directory with a regular `.bootwitch-export-output.json` file containing
+`{"version":1,"purpose":"bootwitch-export-runs"}`. A direct child must be
+named `run-<uuid>` and contain a regular `.bootwitch-export-run.json` with
+`version: 1`, a matching `run_id`, `status: "failed"`, and an ISO `created_at`.
+Both the run's recorded creation and every file/directory modification must
+be more than 14 days old. Approved runs, recently touched material, unmarked
+folders, and symlinks are left alone. The future exporter must create these
+markers only for its own output; do not add them to an existing hand-maintained
+directory. This is cooperative local cleanup, not protection against a hostile
+process replacing paths concurrently.
