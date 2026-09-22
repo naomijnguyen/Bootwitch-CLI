@@ -3,7 +3,7 @@
 # Name: lib/bootwitch/core.sh
 # Type: module
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-21
-# Version: 0.5.0
+# Version: 0.5.1
 # Purpose: Implement Bootwitch CLI dispatch, project creation, metadata inspection, scripts, and diagnostics.
 # Arguments: Source with BOOTWITCH_HOME set; bootwitch_main receives CLI arguments.
 # Output: Command results, setup prompts, progress, and diagnostics when functions are called.
@@ -433,6 +433,9 @@ bootwitch_init() {
     bootwitch_note "overlaying $template_name template"
     cp -R "$BOOTWITCH_HOME/templates/$template_name/." "$staging/"
   fi
+  # Finder metadata is local machine state, not project template content.
+  # Remove it from the private stage before token rendering or publication.
+  find "$staging" -name .DS_Store ! -type d -exec rm -f -- {} +
 
   # Metadata is written only inside staging. Values are validated/plain text;
   # consumers use config.sh's allowlisted parser rather than source this file.

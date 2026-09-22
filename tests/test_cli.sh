@@ -2,8 +2,8 @@
 # @bootwitch:component
 # Name: tests/test_cli.sh
 # Type: test
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-16
-# Version: 0.3.2
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-21
+# Version: 0.3.3
 # Purpose: Verify workspace setup, CLI inspection, project/script creation, dry-run, generated projects, and destination refusal.
 # Arguments: None.
 # Output: CLI integration success message; failures on stderr.
@@ -126,6 +126,7 @@ base_project=$space_root/base-demo
 assert_exists "$base_project/README.md"
 assert_exists "$base_project/.bootwitch/project.conf"
 assert_not_exists "$base_project/.git"
+assert_not_exists "$base_project/.DS_Store"
 /bin/bash "$base_project/tests/run.sh" >/dev/null
 
 metadata=$(cat "$base_project/.bootwitch/project.conf")
@@ -137,6 +138,7 @@ shell_project=$space_root/shell-demo
 assert_exists "$shell_project/.git"
 assert_exists "$shell_project/modules/log.sh"
 assert_exists "$shell_project/wrappers/run.command"
+assert_not_exists "$shell_project/.DS_Store"
 /bin/bash "$shell_project/tests/run.sh" >/dev/null
 
 python_created=$(/bin/bash "$shell_project/wrappers/new_script.command" word-demo scripts --language python)
