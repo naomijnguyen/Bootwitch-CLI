@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- [2026-09-21] Removed the redundant Homebrew formula version field so strict audit passes while the tag URL remains the version source.
+
 ## v0.4.0 - 2026-09-21
 
 ### Added
