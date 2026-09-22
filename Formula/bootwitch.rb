@@ -20,6 +20,9 @@ class Bootwitch < Formula
   end
 
   test do
-    assert_match "Usage:", shell_output("#{bin}/bootwitch help")
+    assert_match "Templates:", shell_output("#{bin}/bootwitch templates")
+    system bin/"bootwitch", "init", "brew-smoke", "--template", "base",
+           "--root", testpath.to_s, "--no-git"
+    assert_path_exists testpath/"brew-smoke/.bootwitch/project.conf"
   end
 end

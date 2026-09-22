@@ -2,9 +2,9 @@
 # @bootwitch:component
 # Name: tests/test_release.sh
 # Type: test
-# Dates: Created: 2026-09-16 | Last Updated: 2026-09-16
-# Version: 0.1.0
-# Purpose: Verify non-mutating formula previews and the read-only release verification workflow.
+# Dates: Created: 2026-09-16 | Last Updated: 2026-09-21
+# Version: 0.2.0
+# Purpose: Verify non-mutating formula previews, a functional formula smoke test, and the read-only release verification workflow.
 # Arguments: None.
 # Output: Release tooling success message; failures on stderr.
 # Returns: 0 on success; nonzero on failure.
@@ -41,6 +41,8 @@ preview_output=$(PATH="$TEST_TMP/bin:$PATH" /bin/bash "$PROJECT_ROOT/tools/bump-
 assert_contains "$preview_output" 'version "9.9.9"'
 assert_contains "$preview_output" 'dry-run complete for v9.9.9'
 cmp "$TEST_TMP/formula-before.rb" "$PROJECT_ROOT/Formula/bootwitch.rb"
+grep -Fq 'system bin/"bootwitch", "init", "brew-smoke"' "$PROJECT_ROOT/Formula/bootwitch.rb"
+grep -Fq 'assert_path_exists testpath/"brew-smoke/.bootwitch/project.conf"' "$PROJECT_ROOT/Formula/bootwitch.rb"
 
 workflow=$PROJECT_ROOT/.github/workflows/release-brew-formula.yml
 grep -Fq '  contents: read' "$workflow"

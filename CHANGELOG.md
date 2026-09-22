@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## v0.4.0 - release candidate
+
+### Added
+
+- Added read-only `project-info`, a generated-project module catalog, and an opt-in annotated Python word-count starter available through both project-local and toolkit CLI commands.
+- Added a safety-bounded media derivative pilot for images and videos, with source preservation and mandatory human quality review before use.
+- Added GitHub-safe export preflight, private staged copies, exact-tree verification, and dry-run-first cleanup for marked failed runs older than 14 days. These tools do not create or publish a public repository.
+
+### Fixed
+
+- Kept documentation wrappers anchored to their generated project and resolved symlinked toolkit entry points.
+- Refused colliding export output paths, ignored local environment files in generated projects, and removed Finder metadata from generated-project staging.
+
+### Changed
+
+- The Homebrew formula test now creates a disposable project instead of checking only `help`.
+
 ## v0.3.0 - 2026-09-16
 
 - Fixed the Homebrew distribution path with a verified release checksum and the dedicated public `naomijnguyen/homebrew-bootwitch` tap.

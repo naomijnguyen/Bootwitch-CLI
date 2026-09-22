@@ -1,6 +1,6 @@
 # Bootwitch Architecture
 
-Current version: `v0.3.0`
+Development version: `v0.4.0` (release candidate); latest published version: `v0.3.0`.
 
 Bootwitch is a local scaffolding tool. Its job is to create predictable project
 workspaces without taking ownership of the user's machine, cloud accounts, or
@@ -95,7 +95,7 @@ project defaults derive from the current user's `$HOME`.
 5. Refuse to continue if the final destination already exists.
 6. In dry-run mode, print the planned destination and exit before writing.
 7. Check Python 3 and exclusive rename API availability, then create a unique staging directory beside the final destination.
-8. Copy the `base` template, then overlay the selected specialized template.
+8. Copy the `base` template, overlay the selected specialized template, and remove Finder metadata from the private stage.
 9. Write `.bootwitch/project.conf` as plain text metadata.
 10. Replace template tokens in staged files.
 11. Mark generated shell scripts and `.command` wrappers executable.
@@ -131,7 +131,7 @@ BOOTWITCH_SCHEMA=1
 PROJECT_NAME=my-project
 TEMPLATE=shell
 CREATED_DATE=2026-09-08
-BOOTWITCH_VERSION=0.3.0
+BOOTWITCH_VERSION=0.4.0
 ```
 
 This file is data, not executable configuration. `lib/bootwitch/config.sh`
