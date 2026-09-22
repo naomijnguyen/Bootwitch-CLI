@@ -16,12 +16,13 @@ with `# @bootwitch:end`. Include all 13 fields on separate, single lines:
 `Name`, `Type`, `Dates`, `Version`, `Purpose`, `Arguments`, `Output`, `Returns`,
 `Dependencies`, `Reads`, `Writes`, `Safety`, and `Example`.
 
-The Bash generator supplies a complete starter header. For Python source, use
-`.bootwitch/templates/python-component.header.tpl` as a reusable header fragment
-and replace every placeholder. Put Python module docstrings after the header.
-The project-local new-script command continues to generate Bash, not Python.
-Python documentation discovery does not add a Python runtime dependency to the
-shell starter or its documentation builder.
+The project-local generator supplies complete Bash and Python script starters.
+Bash is the default; select Python with `--language python`. For a custom
+Python module that is not a generated script, use
+`.bootwitch/templates/python-component.header.tpl` as a header fragment and
+replace every placeholder. Put Python module docstrings after the header.
+Documentation discovery does not import Python or add a Python dependency to
+the shell workflows; running the opt-in Python script does require Python 3.
 
 Use language-accurate descriptions. CLI return codes are different from a Python
 function's returned value or exceptions. A function that returns a dictionary

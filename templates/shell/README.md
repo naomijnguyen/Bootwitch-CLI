@@ -14,6 +14,20 @@ paths, generated documentation, progress checkpoints, and optional pause mode.
 ./wrappers/run_with_pauses.command
 ```
 
+Try the opt-in Python word-count starter (Bash remains the default):
+
+```sh
+bash wrappers/new_script.command word-demo scripts --language python
+python3 scripts/word-demo.py --help
+python3 scripts/word-demo.py --text "Bash bash Python" --top 2
+```
+
+The script uses `argparse` and `collections.Counter` from Python's standard
+library. Its inline annotations feed this project's README and technical
+readthrough; it does not install packages, read files, or use the network.
+See [the Python starter guide](docs/python-starter.md) for the function,
+import, loop, and command-line examples.
+
 The wrappers are path-aware. This also works from another folder:
 
 ```sh

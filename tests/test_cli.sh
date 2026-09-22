@@ -139,6 +139,28 @@ assert_exists "$shell_project/modules/log.sh"
 assert_exists "$shell_project/wrappers/run.command"
 /bin/bash "$shell_project/tests/run.sh" >/dev/null
 
+python_created=$(/bin/bash "$shell_project/wrappers/new_script.command" word-demo scripts --language python)
+assert_contains "$python_created" 'Created scripts/word-demo.py'
+assert_exists "$shell_project/scripts/word-demo.py"
+python_help=$(python3 "$shell_project/scripts/word-demo.py" --help)
+assert_contains "$python_help" '--text'
+assert_contains "$python_help" '--top'
+python_words=$(python3 "$shell_project/scripts/word-demo.py" --text 'Bash bash Python' --top 2)
+assert_contains "$python_words" 'Total words: 3'
+assert_contains "$python_words" 'Unique words: 2'
+assert_contains "$python_words" 'bash: 2'
+if python3 "$shell_project/scripts/word-demo.py" --top 0 >/dev/null 2>&1; then
+  test_fail 'Python starter accepted a nonpositive --top value'
+fi
+if /bin/bash "$shell_project/wrappers/new_script.command" word-demo scripts --language python >/dev/null 2>&1; then
+  test_fail 'Python starter generator overwrote an existing script'
+fi
+if /bin/bash "$shell_project/wrappers/new_script.command" wrong-language scripts --language ruby >/dev/null 2>&1; then
+  test_fail 'generator accepted an unsupported language'
+fi
+assert_not_exists "$shell_project/scripts/wrong-language.rb"
+assert_contains "$(cat "$shell_project/README.md")" 'word-demo.py'
+
 # Generated projects ignore local environment secrets without hiding a
 # shareable example file or an ordinary file named "env".
 git -C "$shell_project" check-ignore -q -- .env || test_fail '.env is not ignored'

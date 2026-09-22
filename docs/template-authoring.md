@@ -49,11 +49,19 @@ Shell projects include `.bootwitch/templates/script.sh.tpl` and the safe
 they share the same metadata header, strict mode, path resolution, `main` entry
 point, logging helper, and instructional annotation format.
 
+The same project-local generator can opt into the complete
+`.bootwitch/templates/script.py.tpl` starter with `--language python`. Bash
+remains the default. The Python example uses only the standard library and
+must not silently add packages to a generated shell project. The separate
+`python-component.header.tpl` remains a fragment for custom Python modules.
+
 The toolkit-level `bootwitch new-script` command is a thin front door to this
 project-local generator. It may locate the nearest generated project or accept
 `--project PATH`, but it must not render from the toolkit's current template
 directly into an older project. This preserves independently versioned projects
-and gives local CLI tests the same behavior as the generated wrapper.
+and gives local CLI tests the same behavior as the generated wrapper. The
+current toolkit front door does not yet forward `--language`, so use the
+generated project's `scripts/new-script.sh` or wrapper for Python.
 
 Document functions with the headings that help a reader predict behavior:
 `Function`, `Purpose`, `Arguments`, `Output`, `Returns`, `How it works`, and

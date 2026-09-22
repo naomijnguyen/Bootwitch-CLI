@@ -3,18 +3,18 @@
 # Name: new_script.command
 # Display Name: Create Annotated Script
 # Type: wrapper
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.2.2
-# Purpose: Create an annotated project script and refresh its README reference.
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-21
+# Version: 0.3.0
+# Purpose: Create an annotated Bash or opt-in Python script and refresh its README reference.
 # Calls: scripts/new-script.sh
-# Arguments: NAME [scripts|src|tests]; forwarded to the generator.
+# Arguments: NAME [scripts|src|tests] [--language bash|python]; forwarded to the generator.
 # Output: Created script and updated README paths on stdout; errors/retry instructions on stderr.
 # Returns: 0 when creation and refresh succeed; 3 for a created script with failed refresh; other nonzero statuses for creation errors.
 # Dependencies: Bash 3.2+, dirname, scripts/new-script.sh and its dependencies.
 # Reads: Generator, script template, README builder, metadata, and project annotations.
 # Writes: Through the generator: new executable script, runtime directories, temporary files, and generated README section.
 # Safety: The underlying generator validates names and refuses overwrites.
-# Example: bash wrappers/new_script.command sample-task scripts
+# Example: bash wrappers/new_script.command word-count scripts --language python
 # @bootwitch:end
 
 set -e

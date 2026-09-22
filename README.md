@@ -253,6 +253,7 @@ From the root of a generated shell project:
 
 ```sh
 bash scripts/new-script.sh sample-task scripts
+bash scripts/new-script.sh word-demo scripts --language python
 # After later edits to component or function annotations:
 bash wrappers/build_readme.command
 ```
@@ -262,9 +263,10 @@ Direct source edits need the explicit build command. Running a script does not
 rebuild documentation. Keep the descriptions beside the code and update them
 when behavior changes; the renderer cannot infer behavior from implementation.
 
-Both component and function templates are included. Bash generation uses the
-annotated shell starter; Python files can use the reusable component-header
-fragment. The new-script command remains Bash-only. Every component keeps the
+Both component and function templates are included. Bash generation is the
+default; `--language python` creates a complete, annotated standard-library
+word-count starter. Custom Python modules can still use the reusable
+component-header fragment. Every component keeps the
 13-field header, with actual creation/update dates and a component version.
 Function blocks describe inputs, outputs, returns, reads, writes, and safety.
 Keep every field on one line. Ordinary comments and Python docstrings are not
