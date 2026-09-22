@@ -12,7 +12,7 @@ projects kept turning into mystery folders. It gives each new project obvious
 front doors, keeps paths from breaking when scripts move, and leaves readable
 notes beside the code so future-me can remember what is going on.
 
-The current pre-public development line starts with two templates:
+The toolkit currently provides two templates:
 
 - `base`: a clean, language-neutral project layout.
 - `shell`: the base layout plus a Bash entry point, logging, platform detection,
@@ -81,7 +81,8 @@ adds the note to the matching `docs/release-notes/v<version>.md`. Use
 
 ## Quick start
 
-Run Bootwitch commands from the Bootwitch code folder, such as this repository's
+After a Homebrew install, run `bootwitch` from any directory. The commands below
+show the equivalent source-checkout form; run them from this repository's
 `Bootwitch-CLI` directory:
 
 ```sh
