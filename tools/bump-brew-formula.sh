@@ -2,9 +2,9 @@
 # @bootwitch:component
 # Name: tools/bump-brew-formula.sh
 # Type: script
-# Dates: Created: 2026-09-12 | Last Updated: 2026-09-16
-# Version: 0.2.0
-# Purpose: Update the hosted Homebrew formula for the current Bootwitch release tag.
+# Dates: Created: 2026-09-12 | Last Updated: 2026-09-21
+# Version: 0.2.1
+# Purpose: Update the hosted Homebrew formula URL and checksum for a release tag; Homebrew infers its version from the URL.
 # Arguments: Optional tag (defaults to v$(cat VERSION)); --dry-run supported.
 # Output: Rewrites Formula/bootwitch.rb, or previews its diff for --dry-run, and prints a short confirmation.
 # Returns: 0 on success.
@@ -54,18 +54,15 @@ if test "$dry_run" -eq 1; then
 fi
 
 release_sha=$(curl -Lfs "$tarball_url" | shasum -a 256 | awk '{print $1}')
-release_version=${target_tag#v}
-
-python3 - "$formula_file" "$target_tag" "$tarball_url" "$release_sha" "$release_version" <<'PY'
+python3 - "$formula_file" "$tarball_url" "$release_sha" <<'PY'
 import pathlib
 import re
 import sys
 
-path, tag, url, sha, version = sys.argv[1:]
+path, url, sha = sys.argv[1:]
 text = pathlib.Path(path).read_text()
 text = re.sub(r'^\s*url ".*"\n', f'  url "{url}"\n', text, count=1, flags=re.MULTILINE)
 text = re.sub(r'^\s*sha256 ".*"\n', f'  sha256 "{sha}"\n', text, count=1, flags=re.MULTILINE)
-text = re.sub(r'^  version ".*"\n', f'  version "{version}"\n', text, count=1, flags=re.MULTILINE)
 pathlib.Path(path).write_text(text)
 PY
 

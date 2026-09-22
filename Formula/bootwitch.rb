@@ -3,7 +3,6 @@ class Bootwitch < Formula
   homepage "https://github.com/naomijnguyen/Bootwitch-CLI"
   url "https://github.com/naomijnguyen/Bootwitch-CLI/archive/refs/tags/v0.4.0.tar.gz"
   sha256 "ab6bb61cf08b33318e4ffdbcdbd34a12d2ed291beb3fcee46baf5480b79c5342"
-  version "0.4.0"
   license "MIT"
 
   depends_on "python@3.14"
