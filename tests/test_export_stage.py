@@ -42,9 +42,9 @@ class ExportStageTests(unittest.TestCase):
         before = (self.project / "src/app.txt").read_bytes()
         run = export_stage.stage(self.project, self.root)
         self.assertEqual(run.parent, self.root)
-        self.assertEqual([p.relative_to(run).as_posix() for p in run.rglob("*") if p.is_file()],
-                         [".bootwitch-export-run.json", ".bootwitch-export-inventory.json",
-                          "source/app/app.txt"])
+        self.assertCountEqual([p.relative_to(run).as_posix() for p in run.rglob("*") if p.is_file()],
+                              [".bootwitch-export-run.json", ".bootwitch-export-inventory.json",
+                               "source/app/app.txt"])
         inventory = json.loads((run / export_stage.INVENTORY_MARKER).read_text())
         self.assertEqual(inventory["files"][0]["output"], "app/app.txt")
         self.assertEqual((run / "source/app/app.txt").read_bytes(), before)
