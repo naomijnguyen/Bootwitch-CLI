@@ -2,8 +2,8 @@
 # @bootwitch:component
 # Name: tests/helpers.sh
 # Type: module
-# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-11
-# Version: 0.1.1
+# Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-21
+# Version: 0.1.2
 # Purpose: Provide shared assertions for Bootwitch integration tests.
 # Arguments: Source this module; assertion functions accept paths or expected text.
 # Output: Failure messages on stderr; successful assertions are silent.
@@ -31,5 +31,5 @@ assert_not_exists() {
 assert_contains() {
   haystack=$1
   needle=$2
-  printf '%s\n' "$haystack" | grep -F -q -- "$needle" || test_fail "expected output to contain: $needle"
+  grep -F -q -- "$needle" <<< "$haystack" || test_fail "expected output to contain: $needle"
 }
