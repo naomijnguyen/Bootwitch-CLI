@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## v0.4.0 - release candidate
+## v0.4.0 - 2026-09-21
 
 ### Added
 
