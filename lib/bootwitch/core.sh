@@ -3,7 +3,7 @@
 # Name: lib/bootwitch/core.sh
 # Type: module
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-21
-# Version: 0.5.1
+# Version: 0.6.0
 # Purpose: Implement Bootwitch CLI dispatch, project creation, metadata inspection, scripts, and diagnostics.
 # Arguments: Source with BOOTWITCH_HOME set; bootwitch_main receives CLI arguments.
 # Output: Command results, setup prompts, progress, and diagnostics when functions are called.
@@ -31,7 +31,7 @@ Usage:
   bootwitch setup [--workspace PATH] [--dry-run]
   bootwitch init NAME [--template base|shell] [--root PATH] [--no-git] [--dry-run]
   bootwitch summon
-  bootwitch new-script NAME [scripts|src|tests] [--project PATH]
+  bootwitch new-script NAME [scripts|src|tests] [--language bash|python] [--project PATH]
   bootwitch project-info [--project PATH]
   bootwitch list
   bootwitch templates
@@ -523,18 +523,23 @@ bootwitch_find_project_root() {
 }
 
 # Function: bootwitch_new_script
-# Command: bootwitch new-script NAME [scripts|src|tests] [--project PATH]
+# Command: bootwitch new-script NAME [scripts|src|tests] [--language bash|python] [--project PATH]
 # Purpose: Create one convention-compliant script through a generated project's own template.
-# Arguments: Script name, optional destination area, and optional project path.
+# Arguments: Script name, optional destination area/language, and optional project path.
 # Output: The project-local generator's creation and documentation-refresh messages.
 # Returns: The delegated generator status, or 2 for invalid CLI arguments.
 # Safety: Resolves a regular project marker and fixed non-symlink generator; delegates from that root only for this explicit command.
 bootwitch_new_script() {
   local script_name
   local script_area=scripts
+  local script_language=
   local project_start=$PWD
   local project_root
   local generator
+  local area_seen=0
+  local language_seen=0
+  local project_seen=0
+  local -a generator_args
 
   test "$#" -ge 1 || {
     bootwitch_error 'new-script requires a script name'
@@ -543,27 +548,31 @@ bootwitch_new_script() {
   script_name=$1
   shift
 
-  case "${1:-}" in
-    scripts | src | tests)
-      script_area=$1
-      shift
-      ;;
-  esac
-
-  case "$#" in
-    0) ;;
-    2)
-      test "$1" = --project && test -n "$2" || {
-        bootwitch_error 'usage: bootwitch new-script NAME [scripts|src|tests] [--project PATH]'
-        return 2
-      }
-      project_start=$2
-      ;;
-    *)
-      bootwitch_error 'usage: bootwitch new-script NAME [scripts|src|tests] [--project PATH]'
-      return 2
-      ;;
-  esac
+  while test "$#" -gt 0; do
+    case "$1" in
+      scripts | src | tests)
+        test "$area_seen" -eq 0 || break
+        script_area=$1
+        area_seen=1
+        shift ;;
+      --language)
+        test "$language_seen" -eq 0 && test "$#" -ge 2 || break
+        case "$2" in bash | python) ;; *) break ;; esac
+        script_language=$2
+        language_seen=1
+        shift 2 ;;
+      --project)
+        test "$project_seen" -eq 0 && test "$#" -ge 2 && test -n "$2" || break
+        project_start=$2
+        project_seen=1
+        shift 2 ;;
+      *) break ;;
+    esac
+  done
+  if test "$#" -ne 0; then
+    bootwitch_error 'usage: bootwitch new-script NAME [scripts|src|tests] [--language bash|python] [--project PATH]'
+    return 2
+  fi
 
   project_root=$(bootwitch_find_project_root "$project_start") || return 1
   generator=$project_root/scripts/new-script.sh
@@ -574,7 +583,9 @@ bootwitch_new_script() {
 
   (
     cd "$project_root" || exit 1
-    /bin/bash "$generator" "$script_name" "$script_area"
+    generator_args=("$script_name" "$script_area")
+    test -z "$script_language" || generator_args+=(--language "$script_language")
+    /bin/bash "$generator" "${generator_args[@]}"
   )
 }
 

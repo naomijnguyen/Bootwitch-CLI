@@ -3,7 +3,7 @@
 # Name: tests/test_cli.sh
 # Type: test
 # Dates: Created: 2026-09-03 (first tracked; original creation unknown) | Last Updated: 2026-09-21
-# Version: 0.3.3
+# Version: 0.4.0
 # Purpose: Verify workspace setup, CLI inspection, project/script creation, dry-run, generated projects, and destination refusal.
 # Arguments: None.
 # Output: CLI integration success message; failures on stderr.
@@ -162,6 +162,13 @@ if /bin/bash "$shell_project/wrappers/new_script.command" wrong-language scripts
 fi
 assert_not_exists "$shell_project/scripts/wrong-language.rb"
 assert_contains "$(cat "$shell_project/README.md")" 'word-demo.py'
+cli_python_output=$(/bin/bash "$CLI" new-script cli-words --language python --project "$shell_project")
+assert_contains "$cli_python_output" 'Created scripts/cli-words.py'
+assert_contains "$(python3 "$shell_project/scripts/cli-words.py" --text 'One one two')" 'one: 2'
+if /bin/bash "$CLI" new-script invalid-python --language ruby --project "$shell_project" >/dev/null 2>&1; then
+  test_fail 'toolkit CLI accepted an unsupported script language'
+fi
+assert_not_exists "$shell_project/scripts/invalid-python.py"
 
 # Generated projects ignore local environment secrets without hiding a
 # shareable example file or an ordinary file named "env".

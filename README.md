@@ -223,12 +223,15 @@ to its own template:
 
 ```sh
 ./bin/bootwitch new-script backup-data scripts --project /path/to/generated-project
+./bin/bootwitch new-script word-demo scripts --language python --project /path/to/generated-project
 ```
 
 When `bootwitch` is installed or invoked by absolute path from somewhere inside
 the generated project, omit `--project`; Bootwitch searches upward for the nearest
 regular `.bootwitch/project.conf`. The project-local generator remains authoritative,
 so the CLI does not replace an older project's template with a newer toolkit copy.
+The Python option works when that project's generator supports it; older
+generated projects are not upgraded implicitly.
 
 Generated scripts include a metadata header, strict Bash settings, project-root
 discovery, the standard logging helper, and a `main` function.
